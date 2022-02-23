@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password:     CCWZbaoji123
+    url: jdbc:mysql://sh-cynosdbmysql-grp-gtd1o0yg.sql.tencentcdb.com:21877/baoji_ms
+  servlet:
+    multipart:
+      max-request-size: 3MB
+      max-file-size: 1MB
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
