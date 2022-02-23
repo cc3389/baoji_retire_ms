@@ -2,7 +2,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password:     CCWZbaoji123
+    password:     CCWZbaojims123
     url: jdbc:mysql://sh-cynosdbmysql-grp-gtd1o0yg.sql.tencentcdb.com:21877/baoji_ms
   servlet:
     multipart:
