@@ -1,4 +1,4 @@
-package com.wit.baojims.generator;
+package com.wit.baojims;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -17,13 +17,13 @@ public class MybatisPlusGenerator {
                 tables.add("community");
                 tables.add("institute");
                 tables.add("member");
-                tables.add("role");
+                tables.add("trans");
                 tables.add("visit");
                 FastAutoGenerator.create("jdbc:mysql://sh-cynosdbmysql-grp-gtd1o0yg.sql.tencentcdb.com:21877/baoji_ms","root","CCWZbaojims123")
                         .globalConfig(builder -> {
                             builder              //作者
                                     //.outputDir(System.getProperty("user.dir")+"\\src\\main\\java")    //输出路径(写到java目录)
-                                   .outputDir("D:/1")
+                                   .outputDir("D:\\ideaProject\\baoji_retire_ms\\src\\main\\java")
                                     //.enableSwagger()           //开启swagger
                                     .commentDate("yyyy-MM-dd")
                                     .fileOverride();            //开启覆盖之前生成的文件
@@ -38,7 +38,7 @@ public class MybatisPlusGenerator {
                                     .controller("controller")
                                     .mapper("mapper")
                                     .xml("mapper")
-                                    .pathInfo(Collections.singletonMap(OutputFile.mapperXml,"D:/1"/*System.getProperty("user.dir")+"\\src\\main\\resources\\mapper"*/));
+                                    .pathInfo(Collections.singletonMap(OutputFile.mapperXml,"D:\\ideaProject\\baoji_retire_ms\\src\\main\\resources"/*System.getProperty("user.dir")+"\\src\\main\\resources\\mapper"*/));
                         })
                         .strategyConfig(builder -> {
                             builder//.addInclude(tables)
