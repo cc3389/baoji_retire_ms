@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wit.baojims.mapper.InstituteMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wit.baojims.entity.Institute">
+        <id column="ins_id" property="insId" />
+        <result column="phone" property="phone" />
+        <result column="name" property="name" />
+        <result column="address" property="address" />
+        <result column="email" property="email" />
+        <result column="sum_people" property="sumPeople" />
+    </resultMap>
+
+</mapper>
