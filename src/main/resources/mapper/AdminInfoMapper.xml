@@ -11,4 +11,8 @@
         <result column="per_name" property="perName" />
     </resultMap>
 
+    <select id="login" parameterType="HashMap" resultType="Integer">
+        select admin_id from admin_info where name=#{name} AND password=#{password}
+    </select>
+
 </mapper>

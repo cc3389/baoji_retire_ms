@@ -4,6 +4,7 @@ package com.wit.baojims.controller;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wit.baojims.result.ResponseEnum;
 import com.wit.baojims.entity.AdminInfo;
@@ -15,11 +16,14 @@ import com.wit.baojims.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -42,22 +46,31 @@ public class AdminInfoController {
     @Autowired
     private MemberService memberService;
 
+    /*
+     * @Author Shawn Yue
+     * @Description //TODO Shawn Yue
+     * @Date 8:51 2022/2/25
+     * @Param [admin, bindingResult]
+     * @return cn.dev33.satoken.util.SaResult
+     **/
     @RequestMapping("/login")
-    public SaResult doLogin(@Valid LoginForm admin, BindingResult bindingResult){
-
+    public SaResult doLogin(@Valid @RequestBody LoginForm admin, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             log.info("【用户登录】用户信息不能为空");
             throw new BaojiException(ResponseEnum.ADMIN_INFO_NULL);
         }
+//        log.info(jsonString);
+        log.info(admin.toString());
+        HashMap param= JSONUtil.parse(admin).toBean(HashMap.class);
+        Integer adminId =adminInfoMapper.login(param);
 
         QueryWrapper<AdminInfo> queryWrapper = new QueryWrapper<AdminInfo>();
         queryWrapper.eq("name", admin.getName());
         AdminInfo one = adminInfoMapper.selectOne(queryWrapper);
         SaResult saResult = null;
-        if(one != null){
+        if(adminId != null){
             StpUtil.isLogin();
-            StpUtil.login(one.getAdminId());
-            one.setSaToken(StpUtil.getTokenValue());
+            StpUtil.login(adminId);
             saResult = SaResult.data(one);
 
             saResult.setMsg("success");
@@ -68,7 +81,7 @@ public class AdminInfoController {
         }
     }
 
-    @RequestMapping("/tokenInfo")
+    @RequestMapping("/token")
     public SaResult tokenInfo() {
         return SaResult.data(StpUtil.getTokenInfo());
     }

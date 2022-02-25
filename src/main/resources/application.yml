@@ -1,13 +1,41 @@
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password:     CCWZbaojims123
+    password: CCWZbaojims123
     url: jdbc:mysql://sh-cynosdbmysql-grp-gtd1o0yg.sql.tencentcdb.com:21877/baoji_ms
   servlet:
     multipart:
       max-request-size: 3MB
       max-file-size: 1MB
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  devtools:
+    restart:
+      enabled: true  #设置开启热部署
+      additional-paths: src/main/java #重启目录
+      exclude: WEB-INF/**
+#  # redis配置
+#  redis:
+#    # Redis数据库索引（默认为0）
+#    database: 1
+#    # Redis服务器地址
+#    host: 127.0.0.1
+#    # Redis服务器连接端口
+#    port: 6379
+#    # Redis服务器连接密码（默认为空）
+#    # password:
+#    # 连接超时时间
+#    timeout: 10s
+#    lettuce:
+#      pool:
+#        # 连接池最大连接数
+#        max-active: 200
+#        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+#        max-wait: -1ms
+#        # 连接池中的最大空闲连接
+#        max-idle: 10
+#        # 连接池中的最小空闲连接
+#        min-idle: 0
+
