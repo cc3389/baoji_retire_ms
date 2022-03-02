@@ -1,5 +1,6 @@
 package com.wit.baojims.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wit.baojims.entity.Manage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -12,5 +13,4 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2022-02-25
  */
 public interface ManageService extends IService<Manage> {
-
 }

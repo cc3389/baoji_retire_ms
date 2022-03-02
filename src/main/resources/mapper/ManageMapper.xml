@@ -6,7 +6,6 @@
     <resultMap id="BaseResultMap" type="com.wit.baojims.entity.Manage">
         <id column="admin_id" property="adminId" />
         <result column="com_id" property="comId" />
-        <result column="ins_id" property="insId" />
     </resultMap>
 
 </mapper>

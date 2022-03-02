@@ -7,7 +7,6 @@
         <id column="admin_id" property="adminId" />
         <result column="name" property="name" />
         <result column="password" property="password" />
-        <result column="sa_token" property="saToken" />
         <result column="per_name" property="perName" />
     </resultMap>
 

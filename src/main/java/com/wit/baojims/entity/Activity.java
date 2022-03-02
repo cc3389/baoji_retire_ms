@@ -45,8 +45,8 @@ public class Activity implements Serializable {
     /**
      * 活动描述
      */
-    @TableField("desc")
-    private String desc;
+    @TableField("description")
+    private String description;
 
     /**
      * 所属社区id

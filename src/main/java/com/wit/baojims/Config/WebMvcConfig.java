@@ -14,6 +14,7 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
                 .addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
-
+        registry.addResourceHandler("/avatar/**")
+                .addResourceLocations("file:D:\\ideaProject\\baoji_retire_ms\\src\\main\\java\\com\\wit\\baojims\\avatar");
     }
 }

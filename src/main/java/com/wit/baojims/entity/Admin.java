@@ -42,12 +42,6 @@ public class Admin implements Serializable {
     private String password;
 
     /**
-     * 保持token值
-     */
-    @TableField("sa_token")
-    private String saToken;
-
-    /**
      * 权限名称
      */
     @TableField("per_name")

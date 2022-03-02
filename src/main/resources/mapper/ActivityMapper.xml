@@ -7,7 +7,7 @@
         <id column="act_id" property="actId" />
         <result column="name" property="name" />
         <result column="date" property="date" />
-        <result column="desc" property="desc" />
+        <result column="description" property="description" />
         <result column="com_id" property="comId" />
     </resultMap>
 

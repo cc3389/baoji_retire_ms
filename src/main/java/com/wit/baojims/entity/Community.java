@@ -26,7 +26,7 @@ public class Community implements Serializable {
     /**
      * 社区id
      */
-      @TableId(value = "com_id", type = IdType.AUTO)
+    @TableId(value = "com_id", type = IdType.AUTO)
     private Integer comId;
 
     /**
