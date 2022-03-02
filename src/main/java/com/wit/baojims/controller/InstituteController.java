@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
  * </p>
  *
  * @author 作者
- * @since 2022-02-24
+ * @since 2022-02-25
  */
 @RestController
 @RequestMapping("/institute")

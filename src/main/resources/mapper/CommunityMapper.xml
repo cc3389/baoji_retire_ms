@@ -7,7 +7,6 @@
         <id column="com_id" property="comId" />
         <result column="name" property="name" />
         <result column="vis_count" property="visCount" />
-        <result column="admin_id" property="adminId" />
     </resultMap>
 
 </mapper>

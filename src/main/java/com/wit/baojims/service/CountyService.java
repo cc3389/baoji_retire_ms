@@ -1,6 +1,6 @@
 package com.wit.baojims.service;
 
-import com.wit.baojims.entity.AdminInfo;
+import com.wit.baojims.entity.County;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author 作者
- * @since 2022-02-24
+ * @since 2022-02-27
  */
-public interface AdminInfoService extends IService<AdminInfo> {
+public interface CountyService extends IService<County> {
 
 }

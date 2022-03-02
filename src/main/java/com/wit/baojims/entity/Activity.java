@@ -15,7 +15,7 @@ import lombok.Setter;
  * </p>
  *
  * @author 作者
- * @since 2022-02-24
+ * @since 2022-02-25
  */
 @Getter
 @Setter
@@ -45,8 +45,8 @@ public class Activity implements Serializable {
     /**
      * 活动描述
      */
-    @TableField("desc")
-    private String desc;
+    @TableField("description")
+    private String description;
 
     /**
      * 所属社区id

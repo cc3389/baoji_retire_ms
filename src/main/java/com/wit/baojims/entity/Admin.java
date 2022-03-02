@@ -14,12 +14,12 @@ import lombok.Setter;
  * </p>
  *
  * @author 作者
- * @since 2022-02-24
+ * @since 2022-02-25
  */
 @Getter
 @Setter
-@TableName("admin_info")
-public class AdminInfo implements Serializable {
+@TableName("admin")
+public class Admin implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -40,12 +40,6 @@ public class AdminInfo implements Serializable {
      */
     @TableField("password")
     private String password;
-
-    /**
-     * 保持token值
-     */
-    @TableField("sa_token")
-    private String saToken;
 
     /**
      * 权限名称

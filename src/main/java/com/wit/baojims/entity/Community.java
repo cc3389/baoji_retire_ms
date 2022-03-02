@@ -14,7 +14,7 @@ import lombok.Setter;
  * </p>
  *
  * @author 作者
- * @since 2022-02-24
+ * @since 2022-02-25
  */
 @Getter
 @Setter
@@ -26,7 +26,7 @@ public class Community implements Serializable {
     /**
      * 社区id
      */
-      @TableId(value = "com_id", type = IdType.AUTO)
+    @TableId(value = "com_id", type = IdType.AUTO)
     private Integer comId;
 
     /**
@@ -40,9 +40,6 @@ public class Community implements Serializable {
      */
     @TableField("vis_count")
     private Integer visCount;
-
-    @TableField("admin_id")
-    private Integer adminId;
 
 
 }
