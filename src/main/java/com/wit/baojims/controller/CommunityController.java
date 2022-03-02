@@ -6,11 +6,11 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wit.baojims.Config.BeanCopyUtil;
 import com.wit.baojims.entity.Activity;
 import com.wit.baojims.entity.Community;
 import com.wit.baojims.entity.Member;
 import com.wit.baojims.service.CommunityService;
+import com.wit.baojims.utils.BeanCopyUtil;
 import com.wit.baojims.vo.CommunityPageVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -37,7 +37,9 @@ public class CommunityController {
 
     @PostMapping("/add")
     public SaResult add(@RequestBody JSONObject data){
-        if(data == null) return SaResult.code(300).setMsg("社区名为空");
+        if(data == null) {
+            return SaResult.code(300).setMsg("社区名为空");
+        }
 
         log.info(data.getStr("name"));
         //判断名字是否重复
@@ -58,8 +60,12 @@ public class CommunityController {
 
     @GetMapping("/page")
     public SaResult page( Integer page, Integer size){
-        if(page == null) page = 1;
-        if(size == null) size = 10;
+        if(page == null) {
+            page = 1;
+        }
+        if(size == null) {
+            size = 10;
+        }
         IPage<Community> iPage = communityService.selectCommunityPage(page, size);
 
         // 得到当前页、总页数、页面大小
@@ -77,7 +83,9 @@ public class CommunityController {
 
     @GetMapping("/del")
     public SaResult del(@RequestParam Integer comId){
-        if(comId == null) return SaResult.code(300).setMsg("社区id为空");
+        if(comId == null) {
+            return SaResult.code(300).setMsg("社区id为空");
+        }
 
         QueryWrapper<Community> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("com_id", comId);

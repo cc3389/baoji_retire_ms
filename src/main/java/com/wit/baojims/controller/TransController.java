@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static javafx.scene.input.KeyCode.*;
-
 /**
  * @Author Shawn Yue
  * @Description //TODO Shawn Yue

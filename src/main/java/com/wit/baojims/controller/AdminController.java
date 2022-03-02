@@ -1,32 +1,41 @@
 package com.wit.baojims.controller;
 
 
+
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wit.baojims.Config.MD5Utils;
 import com.wit.baojims.entity.Admin;
+import com.wit.baojims.entity.Community;
+import com.wit.baojims.entity.County;
 import com.wit.baojims.exception.BaojiException;
+import com.wit.baojims.form.AdminForm;
 import com.wit.baojims.form.LoginForm;
 import com.wit.baojims.mapper.AdminMapper;
 import com.wit.baojims.result.ResponseEnum;
 import com.wit.baojims.service.AdminService;
+import com.wit.baojims.service.CommunityService;
+import com.wit.baojims.service.CountyService;
 import com.wit.baojims.service.MemberService;
+import com.wit.baojims.utils.BeanCopyUtil;
+import com.wit.baojims.vo.adminListVo;
+import com.wit.baojims.vo.adminVo;
+import com.wit.baojims.vo.areaVo;
+import com.wit.baojims.vo.comVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.validation.Valid;
-import java.util.HashMap;
 
 @Slf4j
 /*
@@ -43,14 +52,6 @@ public class AdminController {
     private AdminService adminService;
     @Autowired
     private MemberService memberService;
-
-    @PostMapping("/login")
-    public SaResult doLogin(@Valid @RequestBody LoginForm admin, BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            log.info("【用户登录】用户信息不能为空");
-            throw new BaojiException(ResponseEnum.ADMIN_INFO_NULL);
-        }
-
     @Autowired
     private AdminMapper adminMapper;
 
@@ -59,9 +60,6 @@ public class AdminController {
 
     @Autowired
     private CountyService countyService;
-
-    @Autowired
-    private AdminService adminService;
 
 
 
@@ -128,7 +126,7 @@ public class AdminController {
     @GetMapping("/revoke")
     public SaResult revokePermission(@RequestParam("id") Integer id){
         if (id == null){
-           return SaResult.code(300).setData("id不能为空");
+            return SaResult.code(300).setData("id不能为空");
         }
         adminService.deleteAdmin(id);
         return SaResult.ok();
@@ -136,28 +134,28 @@ public class AdminController {
 
     @PostMapping("/grant")
     public SaResult updatePer(@Valid @RequestBody AdminForm adminForm,BindingResult bindingResult){
-       if (bindingResult.hasErrors()){
-           HashMap<String, String> map = new HashMap<>();
-           for (FieldError fieldError : bindingResult.getFieldErrors()) {
-               String field = fieldError.getField();
-               String defaultMessage = fieldError.getDefaultMessage();
-               map.put(field,defaultMessage);
-               return SaResult.code(300).setData(map);
-           }
-       }
+        if (bindingResult.hasErrors()){
+            HashMap<String, String> map = new HashMap<>();
+            for (FieldError fieldError : bindingResult.getFieldErrors()) {
+                String field = fieldError.getField();
+                String defaultMessage = fieldError.getDefaultMessage();
+                map.put(field,defaultMessage);
+                return SaResult.code(300).setData(map);
+            }
+        }
 
-       Admin one = adminService.selectOneById(adminForm.getId());
-       if (adminForm.getType().equals("com")){
-           one.setPerName("low");
-       }else if(adminForm.getType().equals("county")){
-           one.setPerName("mid");
-       }else {
-           return SaResult.code(300).setMsg("区域不存在");
-       }
+        Admin one = adminService.selectOneById(adminForm.getId());
+        if (adminForm.getType().equals("com")){
+            one.setPerName("low");
+        }else if(adminForm.getType().equals("county")){
+            one.setPerName("mid");
+        }else {
+            return SaResult.code(300).setMsg("区域不存在");
+        }
 
-       one.setManageArea(adminForm.getAreaName());
-       adminService.updatePermission(one);
-       return  SaResult.ok();
+        one.setManageArea(adminForm.getAreaName());
+        adminService.updatePermission(one);
+        return  SaResult.ok();
     }
 
     @GetMapping("/info")
@@ -175,7 +173,34 @@ public class AdminController {
 
     //搜索社区和县
     @GetMapping("/suggestion")
-    public SaResult getAllCommunityAndCounty(){
+
+    @PostMapping("/login")
+    public SaResult doLogin(@Valid @RequestBody LoginForm admin, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            log.info("【用户登录】用户信息不能为空");
+            throw new BaojiException(ResponseEnum.ADMIN_INFO_NULL);
+        }
+
+        QueryWrapper<Admin> queryWrapper = new QueryWrapper<Admin>();
+        queryWrapper.eq("name", admin.getUsername());
+        Admin one = adminService.getOne(queryWrapper);
+        String pwd = MD5Utils.getPwd(admin.getPassword());
+
+        if(one == null) {
+            return SaResult.code(300).setMsg("用户不存在");//判断用户名是否存在
+        }
+        SaResult saResult = null;
+        if(pwd.equals(one.getPassword())){  //根据用户名查询到的用户的密码是否与传入的密码是否一致
+            StpUtil.login(one.getAdminId());
+            HashMap vo = new HashMap();
+            vo.put("token", StpUtil.getTokenValue());
+            return SaResult.ok().setData(vo);
+        } else {
+            return SaResult.code(300).setMsg("用户名或密码错误");
+        }
+    }
+
+    public SaResult getAllCommunityAndCounty() {
         List<Community> communityList = communityService.selectAllCommunity();
         List<County> countyList = countyService.selectAllCounty();
 
@@ -201,22 +226,7 @@ public class AdminController {
         map.put("area",areaVos);
         return SaResult.data(map);
     }
-        QueryWrapper<Admin> queryWrapper = new QueryWrapper<Admin>();
-        queryWrapper.eq("name", admin.getUsername());
-        Admin one = adminService.getOne(queryWrapper);
-        String pwd = MD5Utils.getPwd(admin.getPassword());
 
-        if(one == null) return SaResult.code(300).setMsg("用户不存在");//判断用户名是否存在
-        SaResult saResult = null;
-        if(pwd.equals(one.getPassword())){  //根据用户名查询到的用户的密码是否与传入的密码是否一致
-            StpUtil.login(one.getAdminId());
-            HashMap vo = new HashMap();
-            vo.put("token", StpUtil.getTokenValue());
-            return SaResult.ok().setData(vo);
-        } else {
-            return SaResult.code(300).setMsg("用户名或密码错误");
-        }
-    }
 
     @RequestMapping("/tokenInfo")
     public SaResult tokenInfo() {

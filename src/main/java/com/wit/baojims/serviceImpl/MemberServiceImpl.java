@@ -1,5 +1,8 @@
 package com.wit.baojims.serviceImpl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wit.baojims.entity.Member;
 import com.wit.baojims.mapper.MemberMapper;
 import com.wit.baojims.service.MemberService;
@@ -22,8 +25,6 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     @Autowired
     private MemberMapper memberMapper;
 
-    @Autowired
-    private MemberMapper memberMapper;
 
     @Override
     public IPage<Member> selectMemberPage(Integer page, Integer size, Integer currentComId) {

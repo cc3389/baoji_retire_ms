@@ -37,8 +37,6 @@ public class CommunityServiceImpl extends ServiceImpl<CommunityMapper, Community
         queryWrapper.select("com_id", "name");
         return communityMapper.selectPage(iPage, queryWrapper);
     }
-    @Autowired
-    private CommunityMapper communityMapper;
     @Override
     public int insertCommunity(String name) {
         Community community = new Community();

@@ -1,7 +1,26 @@
 package com.wit.baojims.controller;
 
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import cn.dev33.satoken.stp.StpUtil;
+import cn.dev33.satoken.util.SaResult;
+import cn.hutool.json.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wit.baojims.entity.*;
+import com.wit.baojims.exception.BaojiException;
+import com.wit.baojims.form.MemberForm;
+import com.wit.baojims.form.MemberUpdateForm;
+import com.wit.baojims.result.ResponseEnum;
+import com.wit.baojims.service.*;
+import com.wit.baojims.utils.BeanCopyUtil;
+import com.wit.baojims.vo.MemberOneVo;
+import com.wit.baojims.vo.memberVo;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,8 +108,12 @@ public class MemberController {
 
     @GetMapping("/page")
     public SaResult page(@RequestParam("page") Integer pageCurrent,@RequestParam("size") Integer sizeCurrent){
-        if(pageCurrent == null) pageCurrent = 1;
-        if(sizeCurrent == null) sizeCurrent = 10;
+        if(pageCurrent == null) {
+            pageCurrent = 1;
+        }
+        if(sizeCurrent == null) {
+            sizeCurrent = 10;
+        }
 
         Object loginId = StpUtil.getLoginId();
         QueryWrapper<Manage> queryWrapper = new QueryWrapper<>();
@@ -125,7 +148,7 @@ public class MemberController {
         if(one == null){
             return SaResult.code(300).setMsg("查无信息");
         }
-        MemberVo memberVo = new MemberVo();
+        MemberOneVo memberVo = new MemberOneVo();
         BeanUtils.copyProperties(one, memberVo);//属性复制
 
         HashMap data = new HashMap();
@@ -290,9 +313,6 @@ public class MemberController {
 
         return SaResult.ok().setData(data);
     }
-    @Autowired
-    private MemberService memberService;
-
     /*
      * @Author Zeman
      * @Description //TODO
