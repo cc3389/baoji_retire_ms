@@ -81,16 +81,16 @@
             <version>3.4.1.Final</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>cn.dev33</groupId>-->
-<!--            <artifactId>sa-token-dao-redis-jackson</artifactId>-->
-<!--            <version>1.29.0</version>-->
-<!--        </dependency>-->
-<!--        &lt;!&ndash; 提供Redis连接池 &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.commons</groupId>-->
-<!--            <artifactId>commons-pool2</artifactId>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>cn.dev33</groupId>-->
+        <!--            <artifactId>sa-token-dao-redis-jackson</artifactId>-->
+        <!--            <version>1.29.0</version>-->
+        <!--        </dependency>-->
+        <!--        &lt;!&ndash; 提供Redis连接池 &ndash;&gt;-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.commons</groupId>-->
+        <!--            <artifactId>commons-pool2</artifactId>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
@@ -142,6 +142,11 @@
             <version>2.9.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -160,5 +165,7 @@
             </plugin>
         </plugins>
     </build>
+
+
 
 </project>

@@ -1,22 +1,28 @@
 package com.wit.baojims.controller;
 
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wit.baojims.entity.Community;
 import com.wit.baojims.entity.Institute;
+import com.wit.baojims.entity.Manage;
+import com.wit.baojims.form.DeleteInsIdForm;
 import com.wit.baojims.form.InstituteForm;
 import com.wit.baojims.service.CommunityService;
 import com.wit.baojims.service.InstituteService;
+import com.wit.baojims.service.ManageService;
 import com.wit.baojims.utils.BeanCopyUtil;
 import com.wit.baojims.vo.insListVo;
 
 import com.wit.baojims.vo.instituteVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,6 +35,7 @@ import java.util.List;
  * @since 2022-02-25
  */
 @RestController
+@Slf4j
 @RequestMapping("/institute")
 public class InstituteController {
     @Autowired
@@ -36,6 +43,9 @@ public class InstituteController {
 
     @Autowired
     private CommunityService communityService;
+
+    @Autowired
+    private ManageService manageService;
 
     /*
      * @Author Zeman
@@ -45,12 +55,13 @@ public class InstituteController {
      * @return cn.dev33.satoken.util.SaResult
      **/
     @GetMapping("/list")
-    public SaResult institutePage(Integer id,@RequestParam("page") Integer Page, @RequestParam("size") Integer Size){
-        if (id == null){
-            return SaResult.code(300).setData("id不能为空");
-        }
+    public SaResult institutePage(@RequestParam("page") Integer Page, @RequestParam("size") Integer Size){
 
-        IPage<Institute> iPage = instituteService.selectByPage(id, Page, Size);
+        Object loginId = StpUtil.getLoginId();
+        Manage insId = manageService.getInsId(loginId);
+        Integer comId = insId.getComId();
+
+        IPage<Institute> iPage = instituteService.selectByPage(comId, Page, Size);
         long page = iPage.getPages();
         long totalPage = iPage.getTotal();
         long size = iPage.getSize();
@@ -59,19 +70,26 @@ public class InstituteController {
         map.put("page",page);
         map.put("size",size);
         map.put("totalPage",totalPage);
-        List<insListVo> insListVos = BeanCopyUtil.copyListProperties(list, insListVo::new);
+        ArrayList<insListVo> insListVos = new ArrayList<>();
+        for (Institute institute : list) {
+            insListVo insListVo = new insListVo();
+            insListVo.setId(institute.getInsId());
+            insListVo.setName(institute.getName());
+            insListVos.add(insListVo);
+        }
         map.put("list",insListVos);
         return SaResult.data(map);
     }
 
     @GetMapping("/info")
-    public SaResult detailInfo(@RequestParam("id") Integer id){
+    public SaResult detailInfo(@RequestParam("id") Integer id)  {
         if (id == null){
             return SaResult.code(300).setData("id不能为空");
         }
         Institute institute = instituteService.selectInfo(id);
         Community community = communityService.selectById(institute.getComId());
         instituteVo instituteVo = new instituteVo();
+        instituteVo.setInsId(institute.getInsId());
         instituteVo.setAddress(institute.getAddress());
         instituteVo.setEmail(institute.getEmail());
         instituteVo.setSumPeople(institute.getSumPeople());
@@ -117,9 +135,9 @@ public class InstituteController {
     }
 
     @PostMapping("/delete")
-    public SaResult delete(@RequestBody Integer id){
-
-        int i = instituteService.deleteIns(id);
+    public SaResult delete(@RequestBody DeleteInsIdForm deleteInsIdForm){
+        log.info("delete_id",deleteInsIdForm.getId());
+        int i = instituteService.deleteIns(deleteInsIdForm.getId());
         if (i>0){
             return SaResult.ok();
         }else {

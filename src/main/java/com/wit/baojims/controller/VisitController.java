@@ -65,12 +65,16 @@ public class VisitController {
         // 根据comId查询到comName并封装成VO对象传给前端
         List<VisitVo> visitVoList = new ArrayList<>();
         VisitVo visitVos = new VisitVo();
-        QueryWrapper<Community> queryWrapper = new QueryWrapper<>();
         for(Visit visit : visitList){
+            QueryWrapper<Community> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("com_id", visit.getComId());
             Community one = communityService.getOne(queryWrapper);
-            BeanUtils.copyProperties(visit, visitVos);
             visitVos.setComName(one.getName());
+            visitVos.setDate(visit.getVisDate());
+            visitVos.setComId(one.getComId());
+            visitVos.setDesc(visit.getVisDesc());
+            visitVos.setComName(one.getName());
+            visitVos.setId(visit.getVisId());
             visitVoList.add(visitVos);
         }
         data.put("list", visitVoList);
@@ -90,7 +94,7 @@ public class VisitController {
         Manage manage = manageService.getOne(queryWrapper);
 
         QueryWrapper<Community> queryWrapperCommunity = new QueryWrapper<>();
-        queryWrapper.eq("name", visitForm.getComName());
+        queryWrapperCommunity.eq("name", visitForm.getComName());
         Community community = communityService.getOne(queryWrapperCommunity);
 
         if (community == null){

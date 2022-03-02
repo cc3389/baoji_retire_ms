@@ -5,12 +5,12 @@ import lombok.Data;
 @Data
 public class adminListVo {
 
-    private Integer adminId;
+    private Integer id;
 
     private String name;
 
-    private String perName;
+    private String permission;
 
-    private String manageArea;
+    private String areaName;
 
 }

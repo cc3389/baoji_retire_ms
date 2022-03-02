@@ -1,9 +1,11 @@
 package com.wit.baojims.serviceImpl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wit.baojims.entity.Manage;
 import com.wit.baojims.mapper.ManageMapper;
 import com.wit.baojims.service.ManageService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,4 +19,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class ManageServiceImpl extends ServiceImpl<ManageMapper, Manage> implements ManageService {
 
+    @Autowired
+    private ManageMapper manageMapper;
+
+    @Override
+    public Manage getInsId(Object id) {
+        QueryWrapper<Manage> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("admin_id",id);
+        return manageMapper.selectOne(queryWrapper);
+    }
 }

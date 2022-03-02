@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -56,6 +57,7 @@ public class ActivityController {
         QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
         queryWrapperManage.eq("admin_id", loginId);
         Manage manage = manageService.getOne(queryWrapperManage);
+        log.info(manage.getComId().toString());
         IPage<Activity> iPage = activityService.selectActivityPage(pageCurrent, sizeCurrent, manage.getComId());
 
         // 得到当前页、总页数、页面大小
@@ -74,19 +76,27 @@ public class ActivityController {
             queryWrapper.eq("com_id", activity.getComId());
             Community one = communityService.getOne(queryWrapper);
             BeanUtils.copyProperties(activity, activityVo);
+            activityVo.setId(activity.getActId());
             activityVo.setComName(one.getName());
             activityVoList.add(activityVo);
         }
 
-        data.put("list", activityList);
+        data.put("list", activityVoList);
         return SaResult.ok().setData(data);
     }
 
     @PostMapping("/add")
     public SaResult add(@Valid @RequestBody ActivityForm activityForm, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
-            log.info("【用户登录】用户信息不能为空");
-            throw new BaojiException(ResponseEnum.ADMIN_INFO_NULL);
+            SaResult result = null;
+            for (ObjectError allError : bindingResult.getAllErrors()) {
+                String defaultMessage = allError.getDefaultMessage();
+                log.info("[增加活动]",defaultMessage);
+                result = new SaResult(300,defaultMessage,new Object());
+                result.setMsg(defaultMessage);
+                result.setCode(300);
+            }
+            return result;
         }
 
         QueryWrapper<Community> queryWrapperCommunity = new QueryWrapper<>();
@@ -97,7 +107,7 @@ public class ActivityController {
             return SaResult.code(300).setMsg("查无社区");
         }
         Activity activity = new Activity();
-        activity.setDate(LocalDateTime.now());
+        activity.setDate(activityForm.getDate());
         activity.setName(activityForm.getName());
         activity.setDescription(activityForm.getDescription());
         activity.setComId(one.getComId());

@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
@@ -66,6 +68,7 @@ public class Member implements Serializable {
      * 生日
      */
     @TableField("birth")
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private LocalDateTime birth;
 
     /**

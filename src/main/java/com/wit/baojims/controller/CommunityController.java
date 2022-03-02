@@ -6,11 +6,11 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wit.baojims.Config.BeanCopyUtil;
 import com.wit.baojims.entity.Activity;
 import com.wit.baojims.entity.Community;
 import com.wit.baojims.entity.Member;
 import com.wit.baojims.service.CommunityService;
+import com.wit.baojims.utils.BeanCopyUtil;
 import com.wit.baojims.vo.CommunityPageVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -37,7 +37,9 @@ public class CommunityController {
 
     @PostMapping("/add")
     public SaResult add(@RequestBody JSONObject data){
-        if(data == null) return SaResult.code(300).setMsg("社区名为空");
+        if(data == null) {
+            return SaResult.code(300).setMsg("社区名为空");
+        }
 
         log.info(data.getStr("name"));
         //判断名字是否重复
@@ -57,10 +59,14 @@ public class CommunityController {
     }
 
     @GetMapping("/page")
-    public SaResult page( Integer page, Integer size){
-        if(page == null) page = 1;
-        if(size == null) size = 10;
-        IPage<Community> iPage = communityService.selectCommunityPage(page, size);
+    public SaResult page(@RequestParam("page") Integer pageCurrent,@RequestParam("size") Integer sizeCurrent){
+        if(pageCurrent == null) {
+            pageCurrent = 1;
+        }
+        if(sizeCurrent == null) {
+            sizeCurrent = 10;
+        }
+        IPage<Community> iPage = communityService.selectCommunityPage(pageCurrent, sizeCurrent);
 
         // 得到当前页、总页数、页面大小
         List<Community> communityList = iPage.getRecords();
@@ -69,18 +75,28 @@ public class CommunityController {
         data.put("page", iPage.getCurrent());
         data.put("size", iPage.getSize());
         data.put("totalPage", iPage.getTotal());
-        List<CommunityPageVo> communityPageVoList = BeanCopyUtil.copyListProperties(communityList, CommunityPageVo::new);
+
+        List<CommunityPageVo> communityPageVoList = new ArrayList<>();
+        for(Community community : communityList){
+            CommunityPageVo communityPageVo = new CommunityPageVo();
+            communityPageVo.setName(community.getName());
+            communityPageVo.setId(community.getComId());
+            communityPageVoList.add(communityPageVo);
+        }
+
         data.put("list", communityPageVoList);
 
         return SaResult.ok().setData(data);
     }
 
-    @GetMapping("/del")
-    public SaResult del(@RequestParam Integer comId){
-        if(comId == null) return SaResult.code(300).setMsg("社区id为空");
+    @PostMapping("/del")
+    public SaResult del(@RequestBody JSONObject id){
+        if(id.getInt("id") == null) {
+            return SaResult.code(300).setMsg("社区id为空");
+        }
 
         QueryWrapper<Community> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("com_id", comId);
+        queryWrapper.eq("com_id", id.getInt("id"));
         Community one = communityService.getOne(queryWrapper);
 
         // 判断数据库中是否有要删除的社区信息
@@ -93,9 +109,9 @@ public class CommunityController {
     }
 
     @PostMapping("/update")
-    public SaResult update(@RequestBody JSONObject data){
+    public SaResult update(@RequestBody  JSONObject data){
         QueryWrapper<Community> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("com_id", data.getStr("comId"));
+        queryWrapper.eq("com_id", data.getInt("comId"));
         Community one = communityService.getOne(queryWrapper);
         one.setName(data.getStr("name"));
         communityService.updateById(one);

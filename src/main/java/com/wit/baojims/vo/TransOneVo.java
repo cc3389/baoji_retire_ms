@@ -1,5 +1,6 @@
 package com.wit.baojims.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.awt.event.PaintEvent;
@@ -18,6 +19,8 @@ import java.time.LocalDateTime;
 public class TransOneVo {
     private Integer inComId;
     private Integer outComId;
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private LocalDate inDate;
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private LocalDate outDate;
 }

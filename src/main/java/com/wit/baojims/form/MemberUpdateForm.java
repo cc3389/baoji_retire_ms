@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Data
 public class MemberUpdateForm {
     @NotNull(message = "人员id不能为空")
-    private Integer peoId;
+    private Integer id;
 
     private String name;
     private String phone;

@@ -38,6 +38,7 @@ public class InstituteServiceImpl extends ServiceImpl<InstituteMapper, Institute
     @Override
     public Institute selectInfo(Integer id) {
         QueryWrapper<Institute> wrapper = new QueryWrapper<>();
+        wrapper.eq("ins_id",id);
         return instituteMapper.selectOne(wrapper);
     }
 

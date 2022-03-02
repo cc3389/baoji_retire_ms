@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static javafx.scene.input.KeyCode.*;
-
 /**
  * @Author Shawn Yue
  * @Description //TODO Shawn Yue
@@ -55,7 +53,7 @@ public class TransController {
     private CommunityService communityService;
 
     @GetMapping("/page")
-    public SaResult page(@RequestParam("page") Integer pageCurrent,@RequestParam("size") Integer sizeCurrent,String name){
+    public SaResult page(@RequestParam("page") Integer pageCurrent,@RequestParam("size") Integer sizeCurrent,@RequestParam("name") String name){
         if(pageCurrent == null) pageCurrent = 1;
         if(sizeCurrent == null) sizeCurrent = 10;
 
@@ -65,7 +63,7 @@ public class TransController {
         Manage oneManage = manageService.getOne(queryWrapperManage);
         Integer currentComId = oneManage.getComId();
 
-        if(name == null){
+        if(name.equals("")){
             IPage<Trans> iPage = transService.selectTransPage(pageCurrent, sizeCurrent, currentComId);
 
             // 得到当前页、总页数、页面大小
@@ -82,8 +80,11 @@ public class TransController {
                 QueryWrapper<Member> queryWrapperMember = new QueryWrapper<>();
                 QueryWrapper<Community> queryWrapperCommunity1 = new QueryWrapper<>();
                 QueryWrapper<Community> queryWrapperCommunity2 = new QueryWrapper<>();
+                QueryWrapper<Community> queryWrapperCommunity3 = new QueryWrapper<>();
                 BeanUtils.copyProperties(trans, transVo);
-                transVo.setPeoName(memberService.getOne(queryWrapperMember.eq("peo_id", trans.getPeoId())).getName());
+                transVo.setId(trans.getPeoId());
+                transVo.setName(memberService.getOne(queryWrapperMember.eq("peo_id", trans.getPeoId())).getName());
+                transVo.setOutCom(communityService.getOne(queryWrapperCommunity3.eq("com_id", trans.getOutComId())).getName());
                 transVo.setInCom(communityService.getOne(queryWrapperCommunity1.eq("com_id", trans.getInComId())).getName());
                 if (trans.getStatus().equals("通过")){
                     transVo.setInCom(communityService.getOne(queryWrapperCommunity2.eq("com_id", trans.getInComId())).getName());
@@ -101,9 +102,9 @@ public class TransController {
 
             List<Trans> transList = new ArrayList<>();
             for(Object peoId : list){
-                QueryWrapper<Trans> queryWrapper1 = new QueryWrapper<>();
-                queryWrapper.eq("peo_id", peoId);
-                Trans one = transService.getOne(queryWrapper1);
+                QueryWrapper<Trans> queryWrapperTrans = new QueryWrapper<>();
+                queryWrapperTrans.eq("peo_id", peoId);
+                Trans one = transService.getOne(queryWrapperTrans);
                 if(one.getOutComId() == currentComId || one.getInComId() == currentComId){
                     transList.add(one);
                 }
@@ -115,7 +116,7 @@ public class TransController {
         }
     }
 
-    @RequestMapping("/suggestion")
+    @GetMapping("/suggestion")
     public SaResult suggestion(){
         Object loginId = StpUtil.getLoginId();
         QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();

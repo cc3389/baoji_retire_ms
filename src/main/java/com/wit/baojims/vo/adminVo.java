@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class adminVo {
-    private Integer adminId;
+    private String name;
 
-    private String perName;
+    private String roles;
 }

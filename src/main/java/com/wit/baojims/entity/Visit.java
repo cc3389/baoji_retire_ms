@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,6 +34,7 @@ public class Visit implements Serializable {
     /**
      * 走访时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @TableField("vis_date")
     private LocalDateTime visDate;
 

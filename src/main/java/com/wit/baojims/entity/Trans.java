@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -53,9 +55,11 @@ public class Trans implements Serializable {
     @TableField("status")
     private String status;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @TableField("in_date")
     private LocalDateTime inDate;
 
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @TableField("out_date")
     private LocalDateTime outDate;
 

@@ -1,5 +1,8 @@
 package com.wit.baojims.serviceImpl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wit.baojims.entity.Member;
 import com.wit.baojims.mapper.MemberMapper;
 import com.wit.baojims.service.MemberService;
@@ -22,8 +25,6 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     @Autowired
     private MemberMapper memberMapper;
 
-    @Autowired
-    private MemberMapper memberMapper;
 
     @Override
     public IPage<Member> selectMemberPage(Integer page, Integer size, Integer currentComId) {
@@ -32,7 +33,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
         //无条件的话 默认查询所有
         QueryWrapper<Member> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("com_id", currentComId);
-        queryWrapper.select("peo_id", "name");
+        queryWrapper.select("peo_id", "name", "gender", "birth");
         return memberMapper.selectPage(iPage, queryWrapper);
     }
 
@@ -43,9 +44,21 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
         //无条件的话 默认查询所有
         QueryWrapper<Member> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("com_id", currentComId);
-        queryWrapper.select("peo_id", "name", "birth", "is_death");
+        queryWrapper.select("peo_id", "name", "birth", "is_death", "gender");
         return memberMapper.selectPage(iPage, queryWrapper);
     }
+
+    @Override
+    public IPage<Member> selectMemberPageByName(Integer page, Integer size, Integer currentComId, String name) {
+        //获取当前页和页面大小
+        IPage<Member> iPage = new Page<>(page, size);
+        //无条件的话 默认查询所有
+        QueryWrapper<Member> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("name", name).eq("com_id", currentComId);
+        queryWrapper.select("peo_id", "name", "birth", "gender");
+        return memberMapper.selectPage(iPage, queryWrapper);
+    }
+
     @Override
     public IPage<Member> selectMemberFeePage(Integer page,Integer size) {
         //获取当前页和页面大小

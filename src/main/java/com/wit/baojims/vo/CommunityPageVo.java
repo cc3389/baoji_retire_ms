@@ -11,6 +11,6 @@ import lombok.Data;
  **/
 @Data
 public class CommunityPageVo {
-    private Integer comId;
+    private Integer id;
     private String name;
 }

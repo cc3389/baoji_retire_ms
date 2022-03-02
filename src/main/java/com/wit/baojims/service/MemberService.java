@@ -21,4 +21,5 @@ public interface MemberService extends IService<Member> {
     IPage<Member> selectMemberFeePage(Integer page, Integer size);
     IPage<Member> selectMemberPage(Integer page, Integer size, Integer currentComId);
     IPage<Member> selectMemberDeathPage(Integer page, Integer size, Integer currentComId);
+    IPage<Member> selectMemberPageByName(Integer page, Integer size,Integer currentComId, String name);
 }

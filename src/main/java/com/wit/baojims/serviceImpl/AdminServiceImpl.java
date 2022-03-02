@@ -37,10 +37,10 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     }
 
     @Override
-    public Admin selectOneAdmin(Integer id) {
+    public Admin selectOneAdmin(Object id) {
         QueryWrapper<Admin> wrapper = new QueryWrapper<>();
         wrapper.select("admin_id","name");
-        adminMapper.selectById(id);
+        adminMapper.selectById(id.toString());
         return null;
     }
 

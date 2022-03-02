@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -29,8 +30,10 @@ public class MemberForm {
     private String gender;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "生日不能为空")
-    private LocalDate birth;
-    @NotBlank(message = "机构名称不能为空")
+    private LocalDate birthday;
+//    @NotBlank(message = "机构名称不能为空")
     private String insName;
+
+//    private MultipartFile avatar;
 
 }

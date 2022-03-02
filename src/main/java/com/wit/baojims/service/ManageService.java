@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2022-02-25
  */
 public interface ManageService extends IService<Manage> {
+
+    Manage getInsId(Object id);
 }

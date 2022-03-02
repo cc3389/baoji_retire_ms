@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class insListVo {
 
-    private Integer insId;
+    private Integer id;
 
     private String name;
 

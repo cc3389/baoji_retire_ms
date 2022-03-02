@@ -3,6 +3,7 @@ package com.wit.baojims.form;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -19,6 +20,6 @@ public class VisitForm {
     private String comName;
     @NotEmpty(message = "走访记录不能为空")
     private String desc;
-    @NotEmpty(message = "走访时间不能为空")
+    @NotNull(message = "走访时间不能为空")
     private LocalDate date;
 }

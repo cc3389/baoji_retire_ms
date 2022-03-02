@@ -1,5 +1,6 @@
 package com.wit.baojims.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -13,8 +14,9 @@ import java.time.LocalDateTime;
  **/
 @Data
 public class ActivityVo {
-    private Integer actId;
+    private Integer id;
     private String name;
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private LocalDateTime date;
     private String description;
     private Integer comId;

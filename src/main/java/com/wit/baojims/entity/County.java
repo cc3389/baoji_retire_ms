@@ -1,5 +1,5 @@
 package com.wit.baojims.entity;
-package com.wit.baojims.entity;/**
+/**
  * @author: zz
  * createTime: 2022/2/26 20:10
  * description:
@@ -22,13 +22,7 @@ import java.io.Serializable;
  * @Param
  * @return
  **/
-@Getter
-@Setter
-@TableName("county")
-@Alias("county")
-import java.io.Serializable;
-import lombok.Getter;
-import lombok.Setter;
+
 
 /**
  * <p>
@@ -41,6 +35,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @TableName("county")
+@Alias("county")
 public class County implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -48,11 +43,8 @@ public class County implements Serializable {
     /**
      * 县id
      */
-<<<<<<< HEAD
-      @TableId(value = "county_id", type = IdType.AUTO)
-=======
+
     @TableId(value = "county_id", type = IdType.AUTO)
->>>>>>> origin/Zeman
     private Integer countyId;
 
     /**

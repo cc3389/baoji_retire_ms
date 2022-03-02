@@ -5,6 +5,8 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * @author: zz
  * createTime: 2022/2/26 15:22
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 public class AdminForm {
-    @NotBlank(message = "id不能为空")
+
     private Integer id;
     @NotBlank(message = "名字不能为空")
     private String name;

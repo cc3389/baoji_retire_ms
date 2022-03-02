@@ -18,7 +18,7 @@ public interface AdminService extends IService<Admin> {
 
     Admin selectOneById(Integer id);
 
-    Admin selectOneAdmin(Integer id);
+    Admin selectOneAdmin(Object id);
 
     int updatePermission(Admin admin);
 

@@ -1,8 +1,30 @@
 package com.wit.baojims.controller;
 
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import cn.dev33.satoken.stp.StpUtil;
+import cn.dev33.satoken.util.SaResult;
+import cn.hutool.json.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wit.baojims.entity.*;
+import com.wit.baojims.exception.BaojiException;
+import com.wit.baojims.form.MemberForm;
+import com.wit.baojims.form.MemberUpdateForm;
+import com.wit.baojims.result.ResponseEnum;
+import com.wit.baojims.service.*;
+import com.wit.baojims.utils.BeanCopyUtil;
+import com.wit.baojims.vo.MemberOneVo;
+import com.wit.baojims.vo.MemberPageVo;
+import com.wit.baojims.vo.memberVo;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,13 +55,12 @@ public class MemberController {
     @Autowired
     private CommunityService communityService;
 
-//    @SaCheckRole("low")
     @PostMapping("/insert")
-    public SaResult insert(@Valid MemberForm memberForm, BindingResult bindingResult, @RequestParam("avatar") MultipartFile avatar) throws IOException {
-        log.info(memberForm.getInsName());
+    public SaResult insert(@Valid MemberForm memberForm, BindingResult bindingResult, @RequestParam(value = "avatar") MultipartFile avatar) throws IOException {
 
         String originalFilename = avatar.getOriginalFilename();
-        avatar.transferTo(new File("D:\\ideaProject\\baoji_retire_ms\\src\\main\\java\\com\\wit\\baojims\\avatar\\"+originalFilename));
+        String fileName = originalFilename.replace(" ", "");
+        avatar.transferTo(new File("D:\\baoji_retire_ms\\src\\main\\resources\\static\\"+fileName));
 
         if (bindingResult.hasErrors()){
             log.info("【人员录入】人员信息不能为空");
@@ -54,7 +75,7 @@ public class MemberController {
         }
 
         // LocalDate转换LocalDateTime
-        LocalDateTime localDateTime = memberForm.getBirth().atStartOfDay();
+        LocalDateTime localDateTime = memberForm.getBirthday().atStartOfDay();
         Member member = new Member();
         BeanUtils.copyProperties(memberForm, member);       //属性复制 封装成一个Member实体
         member.setBirth(localDateTime);
@@ -74,11 +95,11 @@ public class MemberController {
             Institute institute = instituteService.getOne(queryWrapper1);   //查询登录的管理员管理的机构信息
 
             // 计算年龄  继续封装Member实体
-            member.setAge(LocalDateTime.now().getYear()-memberForm.getBirth().getYear());
+            member.setAge(LocalDateTime.now().getYear()-memberForm.getBirthday().getYear());
             member.setIsDeath("否");
             member.setComId(manage.getComId());
             member.setInstId(institute.getInsId());
-            member.setAvatar("https://192.168.43.159:8080/avatar/"+originalFilename);
+            member.setAvatar(fileName);
 
             memberService.save(member);
             return SaResult.ok();
@@ -88,34 +109,63 @@ public class MemberController {
     }
 
     @GetMapping("/page")
-    public SaResult page(@RequestParam("page") Integer pageCurrent,@RequestParam("size") Integer sizeCurrent){
-        if(pageCurrent == null) pageCurrent = 1;
-        if(sizeCurrent == null) sizeCurrent = 10;
-
-        Object loginId = StpUtil.getLoginId();
-        QueryWrapper<Manage> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("admin_id", loginId);
-        Manage one = manageService.getOne(queryWrapper);
-        IPage<Member> iPage = memberService.selectMemberPage(pageCurrent, sizeCurrent, one.getComId());
-
-        // 得到当前页、总页数、页面大小
-        List<Member> memberList = iPage.getRecords();
-        HashMap data = new HashMap();
-        data.put("page", iPage.getCurrent());
-        data.put("size", iPage.getSize());
-        data.put("totalPage", iPage.getTotal());
-
-        if(memberList == null){
-            return SaResult.code(300).setMsg("查无信息");
+    public SaResult page(@RequestParam("page") Integer pageCurrent,@RequestParam("size") Integer sizeCurrent, @RequestParam(required = false, value = "name") String name){
+        if(pageCurrent == null) {
+            pageCurrent = 1;
+        }
+        if(sizeCurrent == null) {
+            sizeCurrent = 10;
         }
 
-        data.put("list", memberList);
+        if (name.equals("")){
+            Object loginId = StpUtil.getLoginId();
+            QueryWrapper<Manage> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("admin_id", loginId);
+            Manage one = manageService.getOne(queryWrapper);
+            IPage<Member> iPage = memberService.selectMemberPage(pageCurrent, sizeCurrent, one.getComId());
 
-        return SaResult.ok().setData(data);
+            // 得到当前页、总页数、页面大小
+            List<Member> memberList = iPage.getRecords();
+            List<MemberPageVo> memberPageVoList =BeanCopyUtil.copyListProperties(memberList, MemberPageVo::new);
+            HashMap data = new HashMap();
+            data.put("page", iPage.getCurrent());
+            data.put("size", iPage.getSize());
+            data.put("totalPage", iPage.getTotal());
+
+            if(memberList == null){
+                return SaResult.code(300).setMsg("查无信息");
+            }
+
+            data.put("list", memberPageVoList);
+
+            return SaResult.ok().setData(data);
+        }
+        else {
+            Object loginId = StpUtil.getLoginId();
+            QueryWrapper<Manage> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("admin_id", loginId);
+            Manage one = manageService.getOne(queryWrapper);
+            IPage<Member> iPage = memberService.selectMemberPageByName(pageCurrent, sizeCurrent, one.getComId(), name);
+
+            // 得到当前页、总页数、页面大小
+            List<Member> memberList = iPage.getRecords();
+            HashMap data = new HashMap();
+            data.put("page", iPage.getCurrent());
+            data.put("size", iPage.getSize());
+            data.put("totalPage", iPage.getTotal());
+
+            if(memberList == null){
+                return SaResult.code(300).setMsg("查无信息");
+            }
+
+            data.put("list", memberList);
+
+            return SaResult.ok().setData(data);
+        }
     }
 
     @GetMapping("/one")
-    public SaResult one(@RequestParam Integer peoId){
+    public SaResult one(@RequestParam Integer peoId) throws UnknownHostException {
         if(peoId == null) return SaResult.code(300).setMsg("人员id不能为空");
 
         QueryWrapper<Member> queryWrapper = new QueryWrapper<>();
@@ -125,10 +175,18 @@ public class MemberController {
         if(one == null){
             return SaResult.code(300).setMsg("查无信息");
         }
-        MemberVo memberVo = new MemberVo();
+        MemberOneVo memberVo = new MemberOneVo();
         BeanUtils.copyProperties(one, memberVo);//属性复制
 
+        QueryWrapper<Institute> queryWrapperInstitute = new QueryWrapper<>();
+        queryWrapperInstitute.eq("ins_id", one.getInstId());
+        Institute institute = instituteService.getOne(queryWrapperInstitute);
+        memberVo.setInsName(institute.getName());
+
         HashMap data = new HashMap();
+        InetAddress ia = InetAddress.getLocalHost();
+        String ip = ia.getHostAddress();//获取IP
+        memberVo.setAvatar("http://"+ip+":8080/static/"+one.getAvatar());
         data.put("list", memberVo);
         return SaResult.ok().setData(data);
     }
@@ -141,8 +199,8 @@ public class MemberController {
         }
         //根据传入的peo_id查询到人员的详细信息 做下一步信息的修改
         QueryWrapper<Member> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("peo_id", memberUpdateForm.getPeoId());
-        log.info(memberUpdateForm.getPeoId().toString());
+        queryWrapper.eq("peo_id", memberUpdateForm.getId());
+        log.info(memberUpdateForm.getId().toString());
         Member one = memberService.getOne(queryWrapper);
         log.info(one.toString());
 
@@ -162,20 +220,20 @@ public class MemberController {
 
     @PostMapping("/out")
     public SaResult out(@RequestBody JSONObject data){
-        if(data.getInt("peoId") == null){
+        if(data.getInt("id") == null){
             SaResult.code(300).setMsg("人员id为空");
         }
 
         QueryWrapper<Trans> queryWrapperTest = new QueryWrapper<>();
-        queryWrapperTest.eq("peo_id", data.getInt("peoId")).ne("status", "通过");
+        queryWrapperTest.eq("peo_id", data.getInt("id")).ne("status", "通过");
         Trans test = transService.getOne(queryWrapperTest);
-        if(test != null && test.getStatus().equals("待转")){
-            return SaResult.code(300).setMsg("上次转入转出为审核完成");
+        if(test != null && test.getStatus().equals("待转移")){
+            return SaResult.code(300).setMsg("上次转入转出未审核完成");
         }
 
         //传入参数的异常判断
         QueryWrapper<Community> queryWrapperCommunity = new QueryWrapper<>();
-        queryWrapperCommunity.eq("name", data.getStr("inComName"));
+        queryWrapperCommunity.eq("name", data.getStr("community"));
         Community inCom = communityService.getOne(queryWrapperCommunity);
         if(inCom == null){
             return SaResult.code(300).setMsg("社区不存在");
@@ -196,16 +254,16 @@ public class MemberController {
         Trans trans = new Trans();
         trans.setOutComId(outCom.getComId());
         trans.setInComId(inCom.getComId());
-        trans.setPeoId(data.getInt("peoId"));
+        trans.setPeoId(data.getInt("id"));
         trans.setOutDate(LocalDateTime.now());
-        trans.setStatus("待转");
+        trans.setStatus("待转移");
         transService.save(trans);
         return SaResult.ok();
     }
 
     @PostMapping("/in")
     public SaResult in(@RequestBody JSONObject data){
-        if(data.getStr("peoId") == null) return SaResult.code(300).setMsg("人员信息为空");
+        if(data.getStr("id") == null) return SaResult.code(300).setMsg("人员信息为空");
 
         //根据token查询到管理的manage信息
         Object loginId = StpUtil.getLoginId();
@@ -215,7 +273,7 @@ public class MemberController {
 
         //根据proId查询到转入转出表信息
         QueryWrapper<Trans> queryWrapperTrans = new QueryWrapper<>();
-        queryWrapperTrans.eq("peo_id", data.getInt("peoId")).ne("status", "通过");
+        queryWrapperTrans.eq("peo_id", data.getInt("id")).ne("status", "通过").ne("status", "拒绝");
         Trans one1 = transService.getOne(queryWrapperTrans);
 
         if(!data.getBool("status")) one1.setStatus("拒绝");// 拒绝转入
@@ -224,7 +282,12 @@ public class MemberController {
             //设置人员的转入的各类信息 并更新数据库
             one1.setInDate(LocalDateTime.now());
             one1.setStatus("通过");
-            one1.setInComId(one.getComId());
+
+            QueryWrapper<Member> queryWrapperMember = new QueryWrapper<>();
+            queryWrapperMember.eq("peo_id", one1.getPeoId());
+            Member member = memberService.getOne(queryWrapperMember);
+            member.setComId(one1.getInComId());
+            memberService.updateById(member);
         } else {
             return SaResult.code(300).setMsg("操作失败");
         }
@@ -234,12 +297,12 @@ public class MemberController {
     }
 
     @PostMapping("/death")
-    public SaResult death(@RequestBody JSONObject peoId){
-        if(peoId.getInt("peoId") == null) return SaResult.code(300).setMsg("人员信息为空");
+    public SaResult death(@RequestBody JSONObject id){
+        if(id.getInt("id") == null) return SaResult.code(300).setMsg("人员信息为空");
 
         //根据传入的peoId查询到人员信息
         QueryWrapper<Member> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("peo_id", peoId.getStr("peoId"));
+        queryWrapper.eq("peo_id", id.getInt("id"));
         Member one = memberService.getOne(queryWrapper);
 
         if(one == null){
@@ -290,9 +353,6 @@ public class MemberController {
 
         return SaResult.ok().setData(data);
     }
-    @Autowired
-    private MemberService memberService;
-
     /*
      * @Author Zeman
      * @Description //TODO

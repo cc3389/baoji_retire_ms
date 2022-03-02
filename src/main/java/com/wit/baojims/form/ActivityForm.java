@@ -3,6 +3,10 @@ package com.wit.baojims.form;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 /**
  * @Classname ActivityForm
  * @Description TODO
@@ -18,4 +22,6 @@ public class ActivityForm {
     private String description;
     @NotEmpty(message = "所在社区名不能为空")
     private String comName;
+    @NotNull(message = "活动时间不能为空")
+    private LocalDateTime date;
 }
