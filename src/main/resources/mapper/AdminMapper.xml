@@ -9,6 +9,7 @@
         <result column="password" property="password" />
         <result column="sa_token" property="saToken" />
         <result column="per_name" property="perName" />
+        <result column="manage_area" property="manageArea" />
     </resultMap>
 
 </mapper>

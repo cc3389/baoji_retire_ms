@@ -1,5 +1,6 @@
 package com.wit.baojims.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wit.baojims.entity.Admin;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +14,15 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface AdminService extends IService<Admin> {
 
+    IPage<Admin> selectAllAdmin(Integer page, Integer size);
+
+    Admin selectOneById(Integer id);
+
+    Admin selectOneAdmin(Integer id);
+
+    int updatePermission(Admin admin);
+
+    int deleteAdmin(Integer id);
+
+    Admin getInfo(Object id);
 }

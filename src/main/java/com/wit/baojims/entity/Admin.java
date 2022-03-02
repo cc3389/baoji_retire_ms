@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -53,5 +55,11 @@ public class Admin implements Serializable {
     @TableField("per_name")
     private String perName;
 
+
+    /**
+     * 管理区域名
+     */
+    @TableField("manage_area")
+    private String manageArea;
 
 }

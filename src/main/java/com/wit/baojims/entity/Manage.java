@@ -28,8 +28,8 @@ public class Manage implements Serializable {
     @TableField("com_id")
     private Integer comId;
 
-    @TableField("ins_id")
-    private Integer insId;
+    @TableField("county_id")
+    private Integer countyId;
 
 
 }

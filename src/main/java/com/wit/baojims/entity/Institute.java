@@ -59,5 +59,9 @@ public class Institute implements Serializable {
     @TableField("sum_people")
     private Integer sumPeople;
 
-
+    /**
+     * 机构的外键关联社区主键id
+     **/
+    @TableField("com_id")
+    private Integer comId;
 }

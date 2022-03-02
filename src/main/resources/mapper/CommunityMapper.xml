@@ -9,4 +9,7 @@
         <result column="vis_count" property="visCount" />
     </resultMap>
 
+    <select id="selectAll" resultType="com.wit.baojims.entity.Community">
+        select name from baoji_ms.community
+    </select>
 </mapper>

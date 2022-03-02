@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.ibatis.type.Alias;
 
 /**
  * <p>
@@ -20,6 +21,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @TableName("member")
+@Alias("member")
 public class Member implements Serializable {
 
     private static final long serialVersionUID = 1L;

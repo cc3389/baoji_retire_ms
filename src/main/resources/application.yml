@@ -16,8 +16,6 @@ spring:
       enabled: true  #设置开启热部署
       additional-paths: src/main/java #重启目录
       exclude: WEB-INF/**
-#Mybatis别名扫描路径设置（application.properties）
-mybatis.type-aliases-package: com.wit.baojims.entity
 #  # redis配置
 #  redis:
 #    # Redis数据库索引（默认为0）
