@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.ibatis.type.Alias;
 
 /**
  * <p>
@@ -19,6 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @TableName("community")
+@Alias("community")
 public class Community implements Serializable {
 
     private static final long serialVersionUID = 1L;

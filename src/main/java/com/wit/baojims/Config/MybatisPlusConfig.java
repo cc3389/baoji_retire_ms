@@ -18,7 +18,8 @@ public class MybatisPlusConfig {
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         PaginationInnerInterceptor paginationInnerInterceptor = new PaginationInnerInterceptor(DbType.H2);
-//        paginationInnerInterceptor.setMaxLimit(10L);
+        paginationInnerInterceptor.setMaxLimit(10L);
+
         interceptor.addInnerInterceptor(paginationInnerInterceptor);
         return interceptor;
     }

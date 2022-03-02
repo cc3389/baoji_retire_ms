@@ -9,7 +9,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 作者
@@ -27,4 +27,9 @@ public class Manage implements Serializable {
 
     @TableField("com_id")
     private Integer comId;
+
+    @TableField("county_id")
+    private Integer countyId;
+
+
 }

@@ -17,4 +17,6 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         registry.addResourceHandler("/avatar/**")
                 .addResourceLocations("file:D:\\ideaProject\\baoji_retire_ms\\src\\main\\java\\com\\wit\\baojims\\avatar");
     }
-}
+
+
+    }
