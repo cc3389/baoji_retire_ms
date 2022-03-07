@@ -28,6 +28,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         IPage<Admin> iPage = new Page<>(page,size);
         QueryWrapper<Admin> wrapper = new QueryWrapper<>();
         wrapper.select("admin_id","per_name","name","manage_area");
+        wrapper.ne("per_name","high");
         return adminMapper.selectPage(iPage,wrapper);
     }
 
