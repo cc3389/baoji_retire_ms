@@ -24,14 +24,12 @@ public class UnifiedExceptionHandler {
         //处理后端验证失败产生的异常
         if(e instanceof MethodArgumentNotValidException){
             MethodArgumentNotValidException exception = (MethodArgumentNotValidException) e;
-//            jsonObject.set("error", exception.getBindingResult().getFieldError().getDefaultMessage());
             return SaResult.code(300).setMsg(exception.getBindingResult().getFieldError().getDefaultMessage());
         }
         //处理业务异常
         else if(e instanceof BaojiException){
             log.error("执行异常", e);
             BaojiException exception = (BaojiException) e;
-//            jsonObject.set("error", exception.getMessage());
             return SaResult.code(300).setMsg(e.getMessage());
         }
         //处理其余异常

@@ -3,6 +3,9 @@ package com.wit.baojims.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wit.baojims.entity.Activity;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wit.baojims.entity.Manage;
+
+import java.util.List;
 
 /**
  * @Author Shawn Yue
@@ -12,5 +15,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @return 
  **/
 public interface ActivityService extends IService<Activity> {
-    IPage<Activity> selectActivityPage(Integer page, Integer size, Integer comId);
+    IPage<Activity> selectActivityPage(Integer page, Integer size, List<Integer> comIdList);
 }

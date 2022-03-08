@@ -102,20 +102,37 @@ public class AdminController {
         admin.setName(adminForm.getName());
         admin.setPassword(MD5Utils.getPwd("12345678"));
         String type = adminForm.getType();
+        QueryWrapper<Admin> queryWrapper = new QueryWrapper<>();
+        List<Admin> admins = adminMapper.selectList(queryWrapper);
+        boolean flag=false;
         if (type.equals("社区")){
             List<Community> communities = communityService.selectAllCommunity();
             for (Community community : communities) {
                 if (community.getName().equals(adminForm.getAreaName())){
                     admin.setPerName("low");
                     admin.setManageArea(adminForm.getAreaName());
+                    flag=true;
                     break;
                 }else{
                     return SaResult.code(300).setMsg("区域不存在");
                 }
             }
+
+            if (flag){
+                for (Admin admin1 : admins) {
+                    String name = admin1.getName();
+                    if (adminForm.getName().equals(name)){
+                        return SaResult.code(300).setMsg("名字重复");
+                    }
+                }
+                adminMapper.insert(admin);
+                return SaResult.ok();
+            }else {
+                return SaResult.code(300).setMsg("区域不存在");
+            }
         }else if(type.equals("区县")){
             List<County> counties = countyService.selectAllCounty();
-            boolean flag=false;
+
             for (County county : counties) {
                 if (county.getCountyName().equals(adminForm.getAreaName())){
                     admin.setPerName("mid");
@@ -124,12 +141,20 @@ public class AdminController {
                     break;
                 }
             }
+
             if (flag){
+                for (Admin admin1 : admins) {
+                    String name = admin1.getName();
+                    if (adminForm.getName().equals(name)){
+                        return SaResult.code(300).setMsg("名字重复");
+                    }
+                }
                 adminMapper.insert(admin);
                 return SaResult.ok();
             }else {
                 return SaResult.code(300).setMsg("区域不存在");
             }
+
         }
 
         return SaResult.code(300).setMsg("区域类型错误");

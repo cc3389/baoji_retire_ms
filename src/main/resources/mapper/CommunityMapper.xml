@@ -7,6 +7,7 @@
         <id column="com_id" property="comId" />
         <result column="name" property="name" />
         <result column="vis_count" property="visCount" />
+        <result column="count_id" property="countyId"/>
     </resultMap>
 
     <select id="selectAll" resultType="com.wit.baojims.entity.Community">

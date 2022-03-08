@@ -31,5 +31,7 @@ public class Manage implements Serializable {
     @TableField("county_id")
     private Integer countyId;
 
+    @TableField
+    private Integer manageId;
 
 }

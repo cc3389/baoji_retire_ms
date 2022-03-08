@@ -56,9 +56,10 @@ public class ActivityController {
         Object loginId = StpUtil.getLoginId();
         QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
         queryWrapperManage.eq("admin_id", loginId);
-        Manage manage = manageService.getOne(queryWrapperManage);
-        log.info(manage.getComId().toString());
-        IPage<Activity> iPage = activityService.selectActivityPage(pageCurrent, sizeCurrent, manage.getComId());
+        List<Manage> list = manageService.list(queryWrapperManage);
+        List<Integer> comIdList = new ArrayList<>();
+        for (Manage manage : list) comIdList.add(manage.getComId());
+        IPage<Activity> iPage = activityService.selectActivityPage(pageCurrent, sizeCurrent, comIdList);
 
         // 得到当前页、总页数、页面大小
         List<Activity> activityList = iPage.getRecords();
@@ -72,10 +73,12 @@ public class ActivityController {
         List<ActivityVo> activityVoList = new ArrayList<>();
         for(Activity activity : activityList){
             ActivityVo activityVo = new ActivityVo();
+
             QueryWrapper<Community> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("com_id", activity.getComId());
             Community one = communityService.getOne(queryWrapper);
             BeanUtils.copyProperties(activity, activityVo);
+
             activityVo.setId(activity.getActId());
             activityVo.setComName(one.getName());
             activityVoList.add(activityVo);

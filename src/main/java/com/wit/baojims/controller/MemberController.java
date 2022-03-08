@@ -145,6 +145,7 @@ public class MemberController {
             QueryWrapper<Manage> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("admin_id", loginId);
             Manage one = manageService.getOne(queryWrapper);
+            name = name.trim();
             IPage<Member> iPage = memberService.selectMemberPageByName(pageCurrent, sizeCurrent, one.getComId(), name);
 
             // 得到当前页、总页数、页面大小
@@ -378,5 +379,23 @@ public class MemberController {
         //返回给前端
         return SaResult.ok().setData(map);
     }
+
+//    @RequestMapping("/asd")
+//    public void asd(){
+//        for (int i=1;i<=50;i++){
+//            Member member = new Member();
+//            member.setFee(50.0);
+//            member.setIsDeath("否");
+//            member.setAvatar("asd.jpg");
+//            member.setBirth(LocalDateTime.now());
+//            member.setAge(i);
+//            member.setInstId(7);
+//            member.setComId(8);
+//            member.setName("张三"+i+"号");
+//            member.setPhone("12345890"+i);
+//            member.setGender("男");
+//            memberService.save(member);
+//        }
+//    }
 }
 

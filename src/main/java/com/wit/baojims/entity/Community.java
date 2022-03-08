@@ -43,5 +43,9 @@ public class Community implements Serializable {
     @TableField("vis_count")
     private Integer visCount;
 
-
+    /**
+     * 所属县id
+     */
+    @TableField
+    private Integer countyId;
 }

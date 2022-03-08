@@ -117,7 +117,7 @@ public class TransController {
     }
 
     @GetMapping("/suggestion")
-    public SaResult suggestion(){
+    public SaResult suggestion() {
         Object loginId = StpUtil.getLoginId();
         QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
         queryWrapperManage.eq("admin_id", loginId);

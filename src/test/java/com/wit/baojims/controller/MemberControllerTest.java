@@ -1,6 +1,10 @@
 package com.wit.baojims.controller;
 
+import com.wit.baojims.entity.Member;
+import com.wit.baojims.mapper.ManageMapper;
+import com.wit.baojims.mapper.MemberMapper;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -14,21 +18,6 @@ class MemberControllerTest {
 
     @Test
     void out() {
-        String host = "";
-        String ip = "";
 
-        InetAddress ia = null;
-        try {
-            ia = InetAddress.getLocalHost();
-
-            host = ia.getHostName();//获取计算机名字
-
-            ip = ia.getHostAddress();//获取IP
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(host);
-        System.out.println(ip);
     }
 }
