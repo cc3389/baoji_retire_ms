@@ -121,10 +121,12 @@ public class TransController {
         Object loginId = StpUtil.getLoginId();
         QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
         queryWrapperManage.eq("admin_id", loginId);
-        Manage one = manageService.getOne(queryWrapperManage);
+        List<Manage> manageList = manageService.list(queryWrapperManage);
 
         QueryWrapper<Community> queryWrapperCommunity = new QueryWrapper<>();
-        queryWrapperCommunity.ne("com_id", one.getComId());
+        for (Manage manage : manageList) {
+            queryWrapperCommunity.or().ne("com_id", manage.getComId());
+        }
         List<Community> communityList = communityService.list(queryWrapperCommunity);
 
         // 封装成vo传给前端
