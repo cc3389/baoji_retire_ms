@@ -3,13 +3,18 @@ package com.wit.baojims.serviceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wit.baojims.entity.Admin;
 import com.wit.baojims.entity.Community;
+import com.wit.baojims.entity.Manage;
 import com.wit.baojims.entity.Visit;
+import com.wit.baojims.mapper.ManageMapper;
 import com.wit.baojims.mapper.VisitMapper;
 import com.wit.baojims.service.VisitService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @Author Shawn Yue
@@ -22,13 +27,22 @@ public class VisitServiceImpl extends ServiceImpl<VisitMapper, Visit> implements
 
     @Autowired
     private VisitMapper visitMapper;
+    @Autowired
+    private ManageMapper manageMapper;
 
     @Override
-    public IPage<Visit> selectVisitPage(Integer page, Integer size) {
+    public IPage<Visit> selectVisitPage(Integer page, Integer size, Admin admin) {
         //获取当前页和页面大小
         IPage<Visit> iPage = new Page<>(page, size);
-        //无条件的话 默认查询所有
-        QueryWrapper<Visit> queryWrapper = new QueryWrapper<>();
-        return visitMapper.selectPage(iPage, queryWrapper);
+
+        QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
+        queryWrapperManage.eq("admin_id", admin.getAdminId());
+        List<Manage> manageList = manageMapper.selectList(queryWrapperManage);
+
+        QueryWrapper<Visit> queryWrapperVisit = new QueryWrapper<>();
+        for (Manage manage : manageList){
+            queryWrapperVisit.or().eq("com_id", manage.getComId());
+        }
+        return visitMapper.selectPage(iPage, queryWrapperVisit);
     }
 }

@@ -6,14 +6,12 @@ import cn.dev33.satoken.util.SaResult;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wit.baojims.entity.Activity;
-import com.wit.baojims.entity.Community;
-import com.wit.baojims.entity.Manage;
-import com.wit.baojims.entity.Visit;
+import com.wit.baojims.entity.*;
 import com.wit.baojims.exception.BaojiException;
 import com.wit.baojims.form.ActivityForm;
 import com.wit.baojims.form.VisitForm;
 import com.wit.baojims.result.ResponseEnum;
+import com.wit.baojims.service.AdminService;
 import com.wit.baojims.service.CommunityService;
 import com.wit.baojims.service.ManageService;
 import com.wit.baojims.service.VisitService;
@@ -48,12 +46,19 @@ public class VisitController {
     private CommunityService communityService;
     @Autowired
     private ManageService manageService;
+    @Autowired
+    private AdminService adminService;
 
     @GetMapping("/page")
     public SaResult page(@RequestParam("page") Integer pageCurrent,@RequestParam("size") Integer sizeCurrent){
         if(pageCurrent == null) pageCurrent = 1;
         if(sizeCurrent == null) sizeCurrent = 10;
-        IPage<Visit> iPage = visitService.selectVisitPage(pageCurrent, sizeCurrent);
+
+        QueryWrapper<Admin> queryWrapperAdmin = new QueryWrapper<>();
+        queryWrapperAdmin.eq("admin_id", StpUtil.getLoginId());
+        Admin admin = adminService.getOne(queryWrapperAdmin);
+
+        IPage<Visit> iPage = visitService.selectVisitPage(pageCurrent, sizeCurrent, admin);
 
         // 得到当前页、总页数、页面大小
         List<Visit> visitList = iPage.getRecords();
@@ -64,11 +69,11 @@ public class VisitController {
 
         // 根据comId查询到comName并封装成VO对象传给前端
         List<VisitVo> visitVoList = new ArrayList<>();
-        VisitVo visitVos = new VisitVo();
+        QueryWrapper<Community> queryWrapperCommunity = new QueryWrapper<>();
         for(Visit visit : visitList){
-            QueryWrapper<Community> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("com_id", visit.getComId());
-            Community one = communityService.getOne(queryWrapper);
+            VisitVo visitVos = new VisitVo();
+            queryWrapperCommunity.eq("com_id", visit.getComId());
+            Community one = communityService.getOne(queryWrapperCommunity);
             visitVos.setComName(one.getName());
             visitVos.setDate(visit.getVisDate());
             visitVos.setComId(one.getComId());
@@ -76,6 +81,7 @@ public class VisitController {
             visitVos.setComName(one.getName());
             visitVos.setId(visit.getVisId());
             visitVoList.add(visitVos);
+            queryWrapperCommunity.clear();
         }
         data.put("list", visitVoList);
 
@@ -89,25 +95,20 @@ public class VisitController {
             throw new BaojiException(ResponseEnum.ACTIVITY_INFO_NULL);
         }
         Object loginId = StpUtil.getLoginId();
-        QueryWrapper<Manage> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("admin_id", loginId);
-        Manage manage = manageService.getOne(queryWrapper);
-
         QueryWrapper<Community> queryWrapperCommunity = new QueryWrapper<>();
         queryWrapperCommunity.eq("name", visitForm.getComName());
-        Community community = communityService.getOne(queryWrapperCommunity);
-
-        if (community == null){
-            return SaResult.code(300).setMsg("社区不存在");
+        Community one = communityService.getOne(queryWrapperCommunity);
+        if (one == null){
+            return SaResult.code(300).setMsg("查无社区");
         }
-
-        Visit newVisit = new Visit();
-        newVisit.setVisDate(visitForm.getDate().atStartOfDay());
-        newVisit.setVisDesc(visitForm.getDesc());
-        newVisit.setComId(manage.getComId());
-
-        visitService.save(newVisit);
-        return SaResult.ok();
+        else {
+            Visit newVisit = new Visit();
+            newVisit.setVisDate(visitForm.getDate().atStartOfDay());
+            newVisit.setVisDesc(visitForm.getDesc());
+            newVisit.setComId(one.getComId());
+            visitService.save(newVisit);
+            return SaResult.ok();
+        }
     }
     @GetMapping("/one")
     public SaResult one(@RequestParam Integer visId){

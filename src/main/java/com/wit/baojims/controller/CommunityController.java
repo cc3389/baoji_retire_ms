@@ -1,15 +1,16 @@
 package com.wit.baojims.controller;
 
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wit.baojims.entity.Activity;
-import com.wit.baojims.entity.Community;
-import com.wit.baojims.entity.Member;
+import com.wit.baojims.entity.*;
+import com.wit.baojims.service.AdminService;
 import com.wit.baojims.service.CommunityService;
+import com.wit.baojims.service.ManageService;
 import com.wit.baojims.utils.BeanCopyUtil;
 import com.wit.baojims.vo.CommunityPageVo;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +36,10 @@ public class CommunityController {
 
     @Autowired
     private CommunityService communityService;
+    @Autowired
+    private ManageService manageService;
+    @Autowired
+    private AdminService adminService;
 
     @PostMapping("/add")
     public SaResult add(@RequestBody JSONObject data){
@@ -41,17 +47,35 @@ public class CommunityController {
             return SaResult.code(300).setMsg("社区名为空");
         }
 
+        Object loginId = StpUtil.getLoginId();
+        QueryWrapper<Admin> queryWrapperAdmin = new QueryWrapper<>();
+        queryWrapperAdmin.eq("admin_id", loginId);
+        Admin admin = adminService.getOne(queryWrapperAdmin);
         log.info(data.getStr("name"));
         //判断名字是否重复
-        QueryWrapper<Community> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name", data.getStr("name"));
-        Community one = communityService.getOne(queryWrapper);
+        QueryWrapper<Community> queryWrapperCommunity = new QueryWrapper<>();
+        queryWrapperCommunity.eq("name", data.getStr("name"));
+        Community one = communityService.getOne(queryWrapperCommunity);
+
+        QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
+        queryWrapperManage.eq("admin_id", loginId);
+        List<Manage> list = manageService.list(queryWrapperManage);
         if(one == null){
-            //新建社区实体    并传入数据库
+            // 新建社区实体 并传入数据库
             Community community = new Community();
             community.setName(data.getStr("name"));
             community.setVisCount(0);
+            community.setCountyId(list.get(1).getCountyId());
             communityService.save(community);
+            // 新建manage表 并传入数据库
+            queryWrapperCommunity.clear();
+            queryWrapperCommunity.eq("name", community.getName());
+            Community communityServiceOne = communityService.getOne(queryWrapperCommunity);
+            Manage manage = new Manage();
+            manage.setComId(communityServiceOne.getComId());
+            manage.setCountyId(communityServiceOne.getCountyId());
+            manage.setAdminId(admin.getAdminId());
+            manageService.save(manage);
         } else {
             return SaResult.code(300).setMsg("社区名称重复");
         }
