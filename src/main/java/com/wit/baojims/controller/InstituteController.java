@@ -3,6 +3,7 @@ package com.wit.baojims.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wit.baojims.entity.Community;
 import com.wit.baojims.entity.Institute;
@@ -161,6 +162,22 @@ public class InstituteController {
         institute.setComId(community.getComId());
         instituteService.updateIns(institute);
         return SaResult.ok();
+    }
+
+    @GetMapping("/suggestion")
+    public SaResult suggestion (){
+        Object loginId = StpUtil.getLoginId();
+        QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
+        queryWrapperManage.eq("admin_id", loginId);
+        Manage manage = manageService.getOne(queryWrapperManage);
+
+        QueryWrapper<Institute> queryWrapperInstitute = new QueryWrapper<>();
+        queryWrapperInstitute.eq("com_id", manage.getComId());
+        List<Institute> instituteList = instituteService.list(queryWrapperInstitute);
+
+        HashMap data = new HashMap();
+        data.put("list", instituteList);
+        return SaResult.ok().setData(data);
     }
 }
 

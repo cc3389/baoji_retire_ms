@@ -142,5 +142,22 @@ public class CommunityController {
         return SaResult.ok();
     }
 
+    @GetMapping("/suggestion")
+    public SaResult suggestion (){
+        Object loginId = StpUtil.getLoginId();
+        QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
+        queryWrapperManage.eq("admin_id", loginId);
+        List<Manage> manageList = manageService.list(queryWrapperManage);
+
+        QueryWrapper<Community> queryWrapperCommunity = new QueryWrapper<>();
+        for (Manage manage : manageList){
+            queryWrapperCommunity.or().eq("com_id", manage.getComId());
+        }
+        List<Community> communityList = communityService.list(queryWrapperCommunity);
+        HashMap data = new HashMap();
+        data.put("list", communityList);
+
+        return SaResult.ok().setData(data);
+    }
 }
 
