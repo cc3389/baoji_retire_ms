@@ -110,6 +110,7 @@ public class VisitController {
             return SaResult.ok();
         }
     }
+
     @GetMapping("/one")
     public SaResult one(@RequestParam Integer visId){
         if (visId == null) return SaResult.code(300).setMsg("走访记录id为空");

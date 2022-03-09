@@ -14,6 +14,7 @@ import com.wit.baojims.service.CommunityService;
 import com.wit.baojims.service.InstituteService;
 import com.wit.baojims.service.ManageService;
 import com.wit.baojims.utils.BeanCopyUtil;
+import com.wit.baojims.vo.InstituteSuggestionVo;
 import com.wit.baojims.vo.insListVo;
 
 import com.wit.baojims.vo.instituteVo;
@@ -175,8 +176,14 @@ public class InstituteController {
         queryWrapperInstitute.eq("com_id", manage.getComId());
         List<Institute> instituteList = instituteService.list(queryWrapperInstitute);
 
+        List<InstituteSuggestionVo> instituteSuggestionVos = new ArrayList<>();
+        for (Institute institute : instituteList){
+            InstituteSuggestionVo instituteSuggestionVo = new InstituteSuggestionVo();
+            instituteSuggestionVo.setValue(institute.getName());
+            instituteSuggestionVos.add(instituteSuggestionVo);
+        }
         HashMap data = new HashMap();
-        data.put("list", instituteList);
+        data.put("list", instituteSuggestionVos);
         return SaResult.ok().setData(data);
     }
 }

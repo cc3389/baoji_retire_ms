@@ -13,6 +13,7 @@ import com.wit.baojims.service.CommunityService;
 import com.wit.baojims.service.ManageService;
 import com.wit.baojims.utils.BeanCopyUtil;
 import com.wit.baojims.vo.CommunityPageVo;
+import com.wit.baojims.vo.CommunitySuggestionVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,8 +155,15 @@ public class CommunityController {
             queryWrapperCommunity.or().eq("com_id", manage.getComId());
         }
         List<Community> communityList = communityService.list(queryWrapperCommunity);
+
+        List<CommunitySuggestionVo> communitySuggestionVoList = new ArrayList<>();
+        for (Community community : communityList){
+            CommunitySuggestionVo communitySuggestionVo = new CommunitySuggestionVo();
+            communitySuggestionVo.setValue(community.getName());
+            communitySuggestionVoList.add(communitySuggestionVo);
+        }
         HashMap data = new HashMap();
-        data.put("list", communityList);
+        data.put("list", communitySuggestionVoList);
 
         return SaResult.ok().setData(data);
     }
