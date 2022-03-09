@@ -13,10 +13,7 @@ import com.wit.baojims.form.InstituteForm;
 import com.wit.baojims.service.CommunityService;
 import com.wit.baojims.service.InstituteService;
 import com.wit.baojims.service.ManageService;
-import com.wit.baojims.utils.BeanCopyUtil;
-import com.wit.baojims.vo.InstituteSuggestionVo;
 import com.wit.baojims.vo.insListVo;
-
 import com.wit.baojims.vo.instituteVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,27 +57,32 @@ public class InstituteController {
     public SaResult institutePage(@RequestParam("page") Integer Page, @RequestParam("size") Integer Size){
 
         Object loginId = StpUtil.getLoginId();
-        Manage insId = manageService.getInsId(loginId);
-        Integer comId = insId.getComId();
+        List<Manage> manages = manageService.getComId(loginId);
 
-        IPage<Institute> iPage = instituteService.selectByPage(comId, Page, Size);
-        long page = iPage.getPages();
-        long totalPage = iPage.getTotal();
-        long size = iPage.getSize();
-        List<Institute> list = iPage.getRecords();
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("page",page);
-        map.put("size",size);
-        map.put("totalPage",totalPage);
-        ArrayList<insListVo> insListVos = new ArrayList<>();
-        for (Institute institute : list) {
-            insListVo insListVo = new insListVo();
-            insListVo.setId(institute.getInsId());
-            insListVo.setName(institute.getName());
-            insListVos.add(insListVo);
+        QueryWrapper<Institute> queryWrapper = new QueryWrapper<>();
+        ArrayList<Object> comList = new ArrayList<>();
+        for (Manage manage : manages) {
+            comList.add(manage.getComId());
         }
-        map.put("list",insListVos);
-        return SaResult.data(map);
+        IPage<Institute> instituteIPage = instituteService.selectByPage(comList, Page, Size);
+        List<Institute> list = instituteIPage.getRecords();
+        HashMap<String, Object> map = new HashMap<>();
+        long pages = instituteIPage.getPages();
+        long size = instituteIPage.getSize();
+        long total = instituteIPage.getTotal();
+        map.put("page",pages);
+        map.put("size",size);
+        map.put("totalPage",total);
+        ArrayList<insListVo> insListVos = new ArrayList<>();
+            for (Institute institute : list) {
+                insListVo insListVo = new insListVo();
+                insListVo.setId(institute.getInsId());
+                insListVo.setName(institute.getName());
+                insListVos.add(insListVo);
+            }
+            map.put("list",insListVos);
+            return SaResult.data(map);
+
     }
 
     @GetMapping("/info")
@@ -163,28 +165,6 @@ public class InstituteController {
         institute.setComId(community.getComId());
         instituteService.updateIns(institute);
         return SaResult.ok();
-    }
-
-    @GetMapping("/suggestion")
-    public SaResult suggestion (){
-        Object loginId = StpUtil.getLoginId();
-        QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
-        queryWrapperManage.eq("admin_id", loginId);
-        Manage manage = manageService.getOne(queryWrapperManage);
-
-        QueryWrapper<Institute> queryWrapperInstitute = new QueryWrapper<>();
-        queryWrapperInstitute.eq("com_id", manage.getComId());
-        List<Institute> instituteList = instituteService.list(queryWrapperInstitute);
-
-        List<InstituteSuggestionVo> instituteSuggestionVos = new ArrayList<>();
-        for (Institute institute : instituteList){
-            InstituteSuggestionVo instituteSuggestionVo = new InstituteSuggestionVo();
-            instituteSuggestionVo.setValue(institute.getName());
-            instituteSuggestionVos.add(instituteSuggestionVo);
-        }
-        HashMap data = new HashMap();
-        data.put("list", instituteSuggestionVos);
-        return SaResult.ok().setData(data);
     }
 }
 

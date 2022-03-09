@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wit.baojims.entity.Activity;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wit.baojims.entity.Community;
+import com.wit.baojims.entity.Manage;
 import com.wit.baojims.mapper.CommunityMapper;
 import com.wit.baojims.service.CommunityService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -46,8 +47,13 @@ public class CommunityServiceImpl extends ServiceImpl<CommunityMapper, Community
     }
 
     @Override
-    public List<Community> selectAllCommunity() {
-        return communityMapper.selectAll();
+    public List<Community> selectAllCommunity(List<Manage> manages) {
+        QueryWrapper<Community> wrapper = new QueryWrapper<>();
+        for (Manage manage : manages) {
+            Integer comId = manage.getComId();
+            wrapper.or().ne("com_id",comId);
+        }
+        return communityMapper.selectList(wrapper);
     }
 
     @Override

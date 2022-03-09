@@ -7,7 +7,9 @@ package com.wit.baojims.serviceImpl;/**
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wit.baojims.entity.Activity;
+import com.wit.baojims.entity.Community;
 import com.wit.baojims.entity.County;
+import com.wit.baojims.entity.Manage;
 import com.wit.baojims.mapper.ActivityMapper;
 import com.wit.baojims.mapper.CountyMapper;
 import com.wit.baojims.service.ActivityService;
@@ -15,6 +17,7 @@ import com.wit.baojims.service.CountyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -39,7 +42,15 @@ public class CountyServiceImpl extends ServiceImpl<CountyMapper, County> impleme
     }
 
     @Override
-    public List<County> selectAllCounty() {
-        return countyMapper.selectAll();
+    public List<County> selectAllCounty(List<Manage> manages) {
+        QueryWrapper<County> wrapper = new QueryWrapper<>();
+        List<Integer> countIdList = new ArrayList<>();
+        for (Manage manage:manages) countIdList.add(manage.getCountyId());
+        wrapper.ne("county_id", countIdList);
+//        for (Manage manage : manages) {
+//            Integer countyId = manage.getCountyId();
+//            wrapper.or().ne("county_id",countyId);
+//        }
+        return countyMapper.selectList(wrapper);
     }
 }

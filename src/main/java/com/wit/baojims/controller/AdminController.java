@@ -11,15 +11,14 @@ import com.wit.baojims.Config.MD5Utils;
 import com.wit.baojims.entity.Admin;
 import com.wit.baojims.entity.Community;
 import com.wit.baojims.entity.County;
+import com.wit.baojims.entity.Manage;
 import com.wit.baojims.exception.BaojiException;
 import com.wit.baojims.form.AdminForm;
 import com.wit.baojims.form.LoginForm;
 import com.wit.baojims.mapper.AdminMapper;
+import com.wit.baojims.mapper.ManageMapper;
 import com.wit.baojims.result.ResponseEnum;
-import com.wit.baojims.service.AdminService;
-import com.wit.baojims.service.CommunityService;
-import com.wit.baojims.service.CountyService;
-import com.wit.baojims.service.MemberService;
+import com.wit.baojims.service.*;
 import com.wit.baojims.utils.BeanCopyUtil;
 import com.wit.baojims.vo.adminListVo;
 import com.wit.baojims.vo.adminVo;
@@ -51,7 +50,9 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
     @Autowired
-    private MemberService memberService;
+    private  ManageMapper manageMapper;
+    @Autowired
+    private ManageService manageService;
     @Autowired
     private AdminMapper adminMapper;
 
@@ -98,66 +99,42 @@ public class AdminController {
             }
             return SaResult.code(300).setData(map);
         }
+
+        QueryWrapper<Admin> queryWrapper = new QueryWrapper<>();
+        List<Admin> admins = adminMapper.selectList(queryWrapper);
+        for (Admin admin : admins) {
+            if (admin.getName().equals(adminForm.getName()))
+            {
+                return SaResult.code(300).setMsg("用户名重复");
+            }
+        }
+
         Admin admin = new Admin();
         admin.setName(adminForm.getName());
         admin.setPassword(MD5Utils.getPwd("12345678"));
         String type = adminForm.getType();
-        QueryWrapper<Admin> queryWrapper = new QueryWrapper<>();
-        List<Admin> admins = adminMapper.selectList(queryWrapper);
-        boolean flag=false;
+
+        Manage manage = new Manage();
         if (type.equals("社区")){
-            List<Community> communities = communityService.selectAllCommunity();
-            for (Community community : communities) {
-                if (community.getName().equals(adminForm.getAreaName())){
-                    admin.setPerName("low");
-                    admin.setManageArea(adminForm.getAreaName());
-                    flag=true;
-                    break;
-                }else{
-                    return SaResult.code(300).setMsg("区域不存在");
-                }
-            }
-
-            if (flag){
-                for (Admin admin1 : admins) {
-                    String name = admin1.getName();
-                    if (adminForm.getName().equals(name)){
-                        return SaResult.code(300).setMsg("名字重复");
-                    }
-                }
-                adminMapper.insert(admin);
-                return SaResult.ok();
-            }else {
-                return SaResult.code(300).setMsg("区域不存在");
-            }
-        }else if(type.equals("区县")){
-            List<County> counties = countyService.selectAllCounty();
-
-            for (County county : counties) {
-                if (county.getCountyName().equals(adminForm.getAreaName())){
-                    admin.setPerName("mid");
-                    admin.setManageArea(adminForm.getAreaName());
-                    flag=true;
-                    break;
-                }
-            }
-
-            if (flag){
-                for (Admin admin1 : admins) {
-                    String name = admin1.getName();
-                    if (adminForm.getName().equals(name)){
-                        return SaResult.code(300).setMsg("名字重复");
-                    }
-                }
-                adminMapper.insert(admin);
-                return SaResult.ok();
-            }else {
-                return SaResult.code(300).setMsg("区域不存在");
-            }
-
+            Community community = communityService.selectComByName(adminForm.getAreaName());
+            manage.setComId(community.getComId());
+            admin.setPerName("low");
+            admin.setManageArea(adminForm.getAreaName());
+        }else {
+            QueryWrapper<County> w = new QueryWrapper<>();
+            w.eq("county_name",adminForm.getAreaName());
+            County county = countyService.getOne(w);
+            manage.setCountyId(county.getCountyId());
+            admin.setPerName("mid");
+            admin.setManageArea(adminForm.getAreaName());
         }
-
-        return SaResult.code(300).setMsg("区域类型错误");
+        adminMapper.insert(admin);
+        QueryWrapper<Admin> adminQueryWrapper = new QueryWrapper<>();
+        adminQueryWrapper.eq("name",adminForm.getName());
+        Admin one = adminService.getOne(adminQueryWrapper);
+        manage.setAdminId(one.getAdminId());
+        manageMapper.insert(manage);
+        return SaResult.ok();
     }
 
     @PostMapping("/revoke")
@@ -247,30 +224,37 @@ public class AdminController {
 
     @GetMapping("/suggestion")
     public SaResult getAllCommunityAndCounty() {
-        List<Community> communityList = communityService.selectAllCommunity();
-        List<County> countyList = countyService.selectAllCounty();
+        List<Manage> idList = manageService.getIdList();
 
-        if (communityList == null && countyList == null){
-            return SaResult.code(300).setMsg("数据为空");
-        }
-        HashMap<String, Object> map = new HashMap<>();
-        ArrayList<comVo> comVos = new ArrayList<>();
-
-        for (Community community : communityList) {
-            comVo comVo = new comVo();
-            comVo.setValue(community.getName());
-            comVos.add(comVo);
-        }
-        ArrayList<areaVo> areaVos = new ArrayList<>();
-        for (County county : countyList) {
-            areaVo areaVo = new areaVo();
-            areaVo.setValue(county.getCountyName());
-            areaVos.add(areaVo);
+        if (idList == null){
+            return SaResult.code(300);
         }
 
-        map.put("community",comVos);
-        map.put("area",areaVos);
-        return SaResult.data(map);
+        List<Community> communityList = communityService.selectAllCommunity(idList);
+        List<County> countyList = countyService.selectAllCounty(idList);
+
+        if (communityList == null || countyList == null){
+            return SaResult.code(300).setMsg("暂无地区可分配");
+        }else {
+            HashMap<String, Object> map = new HashMap<>();
+            ArrayList<comVo> comVos = new ArrayList<>();
+
+            for (Community community : communityList) {
+                comVo comVo = new comVo();
+                comVo.setValue(community.getName());
+                comVos.add(comVo);
+            }
+            ArrayList<areaVo> areaVos = new ArrayList<>();
+            for (County county : countyList) {
+                areaVo areaVo = new areaVo();
+                areaVo.setValue(county.getCountyName());
+                areaVos.add(areaVo);
+            }
+            map.put("community",comVos);
+            map.put("area",areaVos);
+            return SaResult.data(map);
+        }
+
     }
 
 

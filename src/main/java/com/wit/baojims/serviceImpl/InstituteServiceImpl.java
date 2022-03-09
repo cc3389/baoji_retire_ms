@@ -3,10 +3,10 @@ package com.wit.baojims.serviceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wit.baojims.entity.Institute;
 import com.wit.baojims.mapper.InstituteMapper;
 import com.wit.baojims.service.InstituteService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,10 +27,12 @@ public class InstituteServiceImpl extends ServiceImpl<InstituteMapper, Institute
     private InstituteMapper instituteMapper;
 
     @Override
-    public IPage<Institute> selectByPage(Integer id,Integer page,Integer size) {
+    public IPage<Institute> selectByPage(List<Object> comIdList,Integer page,Integer size) {
         IPage<Institute> iPage = new Page<>(page,size);
         QueryWrapper<Institute> wrapper = new QueryWrapper<>();
-        wrapper.eq("com_id",id);
+        for (Object id : comIdList) {
+            wrapper.or().eq("com_id",id);
+        }
         wrapper.select("ins_id","name");
         return instituteMapper.selectPage(iPage, wrapper);
     }
@@ -39,6 +41,12 @@ public class InstituteServiceImpl extends ServiceImpl<InstituteMapper, Institute
     public Institute selectInfo(Integer id) {
         QueryWrapper<Institute> wrapper = new QueryWrapper<>();
         wrapper.eq("ins_id",id);
+        return instituteMapper.selectOne(wrapper);
+    }
+
+    @Override
+    public Institute select(Integer id) {
+        QueryWrapper<Institute> wrapper = new QueryWrapper<>();
         return instituteMapper.selectOne(wrapper);
     }
 
@@ -56,6 +64,9 @@ public class InstituteServiceImpl extends ServiceImpl<InstituteMapper, Institute
     public int updateIns(Institute institute) {
         return instituteMapper.updateById(institute);
     }
+
+
+
 
 
 }

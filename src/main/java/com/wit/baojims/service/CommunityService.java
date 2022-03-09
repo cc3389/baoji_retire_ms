@@ -5,6 +5,7 @@ import com.wit.baojims.entity.Activity;
 import com.wit.baojims.entity.Community;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wit.baojims.entity.Institute;
+import com.wit.baojims.entity.Manage;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,7 @@ public interface CommunityService extends IService<Community> {
 
     int insertCommunity(String name);
 
-    List<Community> selectAllCommunity();
+    List<Community> selectAllCommunity(List<Manage> manages);
 
     Community selectComByName(String comName);
 

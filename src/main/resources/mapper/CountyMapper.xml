@@ -8,7 +8,5 @@
         <result column="county_name" property="countyName" />
     </resultMap>
 
-    <select id="selectAll" resultType="com.wit.baojims.entity.County">
-        select county_name from baoji_ms.county
-    </select>
+
 </mapper>
