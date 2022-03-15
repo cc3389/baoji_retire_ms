@@ -14,6 +14,7 @@ import com.wit.baojims.entity.County;
 import com.wit.baojims.entity.Manage;
 import com.wit.baojims.exception.BaojiException;
 import com.wit.baojims.form.AdminForm;
+import com.wit.baojims.form.ChangePwdForm;
 import com.wit.baojims.form.LoginForm;
 import com.wit.baojims.mapper.AdminMapper;
 import com.wit.baojims.mapper.ManageMapper;
@@ -64,6 +65,8 @@ public class AdminController {
 
 
 
+
+    @SaCheckRole("high")
     @GetMapping("/list")
     public SaResult adminInfo(@RequestParam("page") Integer page, @RequestParam("size") Integer size){
         IPage<Admin> adminIPage = adminService.selectAllAdmin(page, size);
@@ -88,6 +91,7 @@ public class AdminController {
         return SaResult.ok().setData(map);
     }
 
+    @SaCheckRole("high")
     @PostMapping("/create")
     public SaResult createAdmin(@Valid @RequestBody AdminForm adminForm, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
@@ -117,6 +121,7 @@ public class AdminController {
         Manage manage = new Manage();
         if (type.equals("社区")){
             Community community = communityService.selectComByName(adminForm.getAreaName());
+            if (community == null) return SaResult.code(300).setMsg("社区不存在");
             manage.setComId(community.getComId());
             admin.setPerName("low");
             admin.setManageArea(adminForm.getAreaName());
@@ -124,6 +129,7 @@ public class AdminController {
             QueryWrapper<County> w = new QueryWrapper<>();
             w.eq("county_name",adminForm.getAreaName());
             County county = countyService.getOne(w);
+            if (county == null) return SaResult.code(300).setMsg("区县不存在");
             manage.setCountyId(county.getCountyId());
             admin.setPerName("mid");
             admin.setManageArea(adminForm.getAreaName());
@@ -137,6 +143,7 @@ public class AdminController {
         return SaResult.ok();
     }
 
+    @SaCheckRole("high")
     @PostMapping("/revoke")
     public SaResult revokePermission(@RequestBody AdminForm adminForm){
         if (adminForm.getId() == null){
@@ -146,6 +153,7 @@ public class AdminController {
         return SaResult.ok();
     }
 
+    @SaCheckRole("high")
     @PostMapping("/grant")
     public SaResult updatePer(@Valid @RequestBody AdminForm adminForm,BindingResult bindingResult){
         if (bindingResult.hasErrors()){
@@ -172,6 +180,7 @@ public class AdminController {
         return  SaResult.ok();
     }
 
+    @SaCheckRole("high")
     @GetMapping("/info")
     public SaResult getInfo(){
         Object loginId = StpUtil.getLoginId();
@@ -194,8 +203,13 @@ public class AdminController {
     }
 
     //搜索社区和县
-
-
+    /**
+     * @Author Shawn Yue
+     * @Description //TODO Shawn Yue
+     * @Date 18:41 2022/3/6
+     * @Param [admin, bindingResult]
+     * @return cn.dev33.satoken.util.SaResult
+     **/
     @PostMapping("/login")
     public SaResult doLogin(@Valid @RequestBody LoginForm admin, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
@@ -224,39 +238,99 @@ public class AdminController {
 
     @GetMapping("/suggestion")
     public SaResult getAllCommunityAndCounty() {
-        List<Manage> idList = manageService.getIdList();
+        List<Manage> manageList = manageService.list();
 
-        if (idList == null){
-            return SaResult.code(300);
+        List<Integer> comIdList = new ArrayList<>();
+        for (Manage manage : manageList) {
+            if (manage.getComId() != null){
+                comIdList.add(manage.getComId());
+            }
+        }
+        List<Integer> countyIdList = new ArrayList<>();
+        for (Manage manage : manageList) {
+            if (manage.getCountyId() != null){
+                countyIdList.add(manage.getCountyId());
+            }
         }
 
-        List<Community> communityList = communityService.selectAllCommunity(idList);
-        List<County> countyList = countyService.selectAllCounty(idList);
+        QueryWrapper<Community> queryWrapperCommunity = new QueryWrapper<>();
+        queryWrapperCommunity.notIn("com_id", comIdList);
+        QueryWrapper<County> queryWrapperCounty = new QueryWrapper<>();
+        queryWrapperCounty.notIn("county_id", countyIdList);
 
-        if (communityList == null || countyList == null){
-            return SaResult.code(300).setMsg("暂无地区可分配");
-        }else {
-            HashMap<String, Object> map = new HashMap<>();
-            ArrayList<comVo> comVos = new ArrayList<>();
+        List<Community> communityList = communityService.list(queryWrapperCommunity);
+        List<County> countyList = countyService.list(queryWrapperCounty);
 
-            for (Community community : communityList) {
-                comVo comVo = new comVo();
-                comVo.setValue(community.getName());
-                comVos.add(comVo);
-            }
-            ArrayList<areaVo> areaVos = new ArrayList<>();
-            for (County county : countyList) {
-                areaVo areaVo = new areaVo();
-                areaVo.setValue(county.getCountyName());
-                areaVos.add(areaVo);
-            }
-            map.put("community",comVos);
-            map.put("area",areaVos);
-            return SaResult.data(map);
+        HashMap<String, Object> map = new HashMap<>();
+        ArrayList<comVo> comVos = new ArrayList<>();
+        for (Community community : communityList) {
+            comVo comVo = new comVo();
+            comVo.setValue(community.getName());
+            comVos.add(comVo);
         }
+        ArrayList<areaVo> areaVos = new ArrayList<>();
+        for (County county : countyList) {
+            areaVo areaVo = new areaVo();
+            areaVo.setValue(county.getCountyName());
+            areaVos.add(areaVo);
+        }
+        map.put("community",comVos);
+        map.put("area",areaVos);
+
+        return SaResult.data(map);
+//
+//        if (idList == null){
+//            return SaResult.code(300);
+//        }
+//
+//        List<Community> communityList = communityService.selectAllCommunity(idList);
+//        List<County> countyList = countyService.selectAllCounty(idList);
+//
+//        if (communityList == null || countyList == null){
+//            return SaResult.code(300).setMsg("暂无地区可分配");
+//        }else {
+//            HashMap<String, Object> map = new HashMap<>();
+//            ArrayList<comVo> comVos = new ArrayList<>();
+//
+//            for (Community community : communityList) {
+//                comVo comVo = new comVo();
+//                comVo.setValue(community.getName());
+//                comVos.add(comVo);
+//            }
+//            ArrayList<areaVo> areaVos = new ArrayList<>();
+//            for (County county : countyList) {
+//                areaVo areaVo = new areaVo();
+//                areaVo.setValue(county.getCountyName());
+//                areaVos.add(areaVo);
+//            }
+//            map.put("community",comVos);
+//            map.put("area",areaVos);
+//            return SaResult.data(map);
+//        }
 
     }
 
+    @PostMapping("/changePwd")
+    public SaResult changePwd (@Valid @RequestBody ChangePwdForm changePwdForm, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            log.info("【修改密码】修改密码信息不能为空");
+            throw new BaojiException(ResponseEnum.CHANGE_PWD_NULL);
+        }
+
+        Object loginId = StpUtil.getLoginId();
+        QueryWrapper<Admin> queryWrapperAdmin = new QueryWrapper<>();
+        queryWrapperAdmin.eq("admin_id", loginId);
+        Admin admin = adminService.getOne(queryWrapperAdmin);
+
+        if (!(admin.getPassword().equals(MD5Utils.getPwd(changePwdForm.getOldPwd())))){
+           return SaResult.code(300).setMsg("旧密码输入不正确");
+        }
+        else {
+            admin.setPassword(MD5Utils.getPwd(changePwdForm.getNewPwd()));
+            adminService.updateById(admin);
+            return SaResult.ok();
+        }
+    }
 
     @RequestMapping("/tokenInfo")
     public SaResult tokenInfo() {

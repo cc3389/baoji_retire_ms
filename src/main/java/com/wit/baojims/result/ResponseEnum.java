@@ -5,7 +5,8 @@ public enum ResponseEnum {
     MEMBER_INFO_NULL(301, "输入人员信息不能为空"),
     MEMBER_UPDATE_NULL(302, "人员id不能为空"),
     ACTIVITY_INFO_NULL(303, "活动信息不能为空"),
-    VISIT_INFO_NULL(304, "走访信息不能为空");
+    VISIT_INFO_NULL(304, "走访信息不能为空"),
+    CHANGE_PWD_NULL(305, "走访信息不能为空");
 
 
     private Integer code;

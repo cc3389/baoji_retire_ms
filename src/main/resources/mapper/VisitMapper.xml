@@ -10,4 +10,15 @@
         <result column="com_id" property="comId" />
     </resultMap>
 
+<!--    <resultMap id="VisitGroupVo" type="com.wit.baojims.vo.VisitGroupVo">-->
+<!--        <result column="year_time" property="year" />-->
+<!--        <result column="total" property="total" />-->
+<!--    </resultMap>-->
+
+<!--    <select id="groupByYear" resultMap="VisitGroupVo" parameterType="java.lang.Integer">-->
+<!--        SELECT DATE_FORMAT(vis_date,'%Y') year_time,COUNT(*) total-->
+<!--        FROM baoji_ms.visit-->
+<!--        where baoji_ms.visit.com_id=#{value}-->
+<!--        GROUP BY year_time;-->
+<!--    </select>-->
 </mapper>

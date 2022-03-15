@@ -3,14 +3,13 @@ package com.wit.baojims.serviceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wit.baojims.entity.Admin;
-import com.wit.baojims.entity.Community;
-import com.wit.baojims.entity.Manage;
-import com.wit.baojims.entity.Visit;
+import com.wit.baojims.entity.*;
 import com.wit.baojims.mapper.ManageMapper;
 import com.wit.baojims.mapper.VisitMapper;
 import com.wit.baojims.service.VisitService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wit.baojims.vo.TransGroupVo;
+import com.wit.baojims.vo.VisitGroupVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,4 +44,9 @@ public class VisitServiceImpl extends ServiceImpl<VisitMapper, Visit> implements
         }
         return visitMapper.selectPage(iPage, queryWrapperVisit);
     }
+
+//    @Override
+//    public List<VisitGroupVo> groupByYear(Integer comId) {
+//        return visitMapper.groupByYear(comId);
+//    }
 }

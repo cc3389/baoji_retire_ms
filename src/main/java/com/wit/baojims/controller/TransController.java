@@ -1,6 +1,7 @@
 package com.wit.baojims.controller;
 
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.core.annotation.Alias;
@@ -15,6 +16,7 @@ import com.wit.baojims.service.CommunityService;
 import com.wit.baojims.service.ManageService;
 import com.wit.baojims.service.MemberService;
 import com.wit.baojims.service.TransService;
+import com.wit.baojims.vo.TransGroupVo;
 import com.wit.baojims.vo.TransOneVo;
 import com.wit.baojims.vo.TransSuggestionVo;
 import com.wit.baojims.vo.TransVo;
@@ -27,7 +29,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,6 +57,7 @@ public class TransController {
     @Autowired
     private CommunityService communityService;
 
+    @SaCheckRole("low")
     @GetMapping("/page")
     public SaResult page(@RequestParam("page") Integer pageCurrent,@RequestParam("size") Integer sizeCurrent,@RequestParam("name") String name){
         if(pageCurrent == null) pageCurrent = 1;
@@ -138,6 +144,30 @@ public class TransController {
         }
         HashMap data = new HashMap();
         data.put("list",transSuggestionVoList);
+        return SaResult.ok().setData(data);
+    }
+
+    @GetMapping("/groupByDate")
+    public SaResult groupByDate (){
+        Object loginId = StpUtil.getLoginId();
+        QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
+        queryWrapperManage.eq("admin_id", loginId);
+        Manage manage = manageService.getOne(queryWrapperManage);
+
+        List<TransGroupVo> inGroupList = transService.groupByInMonth(manage.getComId());
+        List<TransGroupVo> outGroupList = transService.groupByOutMonth(manage.getComId());
+
+        int[] out = new int[12];
+        int[] in = new int[12];
+        for (TransGroupVo transGroupVo : outGroupList) {
+            out[transGroupVo.getMonth()] = transGroupVo.getTotal();
+        }
+        for (TransGroupVo transGroupVo : inGroupList) {
+            in[transGroupVo.getMonth()] = transGroupVo.getTotal();
+        }
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("in", in);
+        data.put("out", out);
         return SaResult.ok().setData(data);
     }
 

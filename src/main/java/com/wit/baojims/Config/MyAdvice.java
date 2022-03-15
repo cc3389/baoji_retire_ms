@@ -38,8 +38,8 @@ public class MyAdvice {
         } finally {
             //最终通知
         }
-        log.info("【后置通知】类名:{}方法名:{}返回值:{}返回值json数据:\n{}",
-                className,methodName,obj,objectMapper.writeValueAsString(obj));
+//        log.info("【后置通知】类名:{}方法名:{}返回值:{}返回值json数据:\n{}",
+//                className,methodName,obj,objectMapper.writeValueAsString(obj));
         return obj;
     }
 }

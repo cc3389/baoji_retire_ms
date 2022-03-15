@@ -22,7 +22,7 @@ public class MemberUpdateForm {
 
     private String name;
     private String phone;
-    private String avatar;
     private String gender;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birth;
 }

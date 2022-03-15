@@ -1,6 +1,7 @@
 package com.wit.baojims.controller;
 
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.log.Log;
@@ -47,6 +48,7 @@ public class ActivityController {
     @Autowired
     private ManageService manageService;
 
+    @SaCheckRole("mid")
     @GetMapping("/page")
     public SaResult page(@RequestParam("page") Integer pageCurrent,@RequestParam("size") Integer sizeCurrent){
         if(pageCurrent == null) pageCurrent = 1;
@@ -88,18 +90,12 @@ public class ActivityController {
         return SaResult.ok().setData(data);
     }
 
+    @SaCheckRole("mid")
     @PostMapping("/add")
     public SaResult add(@Valid @RequestBody ActivityForm activityForm, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
-            SaResult result = null;
-            for (ObjectError allError : bindingResult.getAllErrors()) {
-                String defaultMessage = allError.getDefaultMessage();
-                log.info("[增加活动]",defaultMessage);
-                result = new SaResult(300,defaultMessage,new Object());
-                result.setMsg(defaultMessage);
-                result.setCode(300);
-            }
-            return result;
+            log.info("【活动录入】活动信息不能为空");
+            throw new BaojiException(ResponseEnum.ACTIVITY_INFO_NULL);
         }
 
         QueryWrapper<Community> queryWrapperCommunity = new QueryWrapper<>();

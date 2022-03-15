@@ -13,4 +13,23 @@
         <result column="out_date" property="outDate" />
     </resultMap>
 
+    <resultMap id="TransGroupVo" type="com.wit.baojims.vo.TransGroupVo">
+        <result column="month_time" property="month" />
+        <result column="total" property="total" />
+    </resultMap>
+
+    <select id="groupByInMonth" resultMap="TransGroupVo" parameterType="java.lang.Integer">
+        SELECT DATE_FORMAT(in_date,'%m') month_time,COUNT(*) total
+        FROM baoji_ms.trans
+        where baoji_ms.trans.in_com_id=#{value}
+        GROUP BY month_time;
+    </select>
+
+    <select id="groupByOutMonth" resultMap="TransGroupVo">
+        SELECT DATE_FORMAT(out_date,'%m') month_time,COUNT(*) total
+        FROM baoji_ms.trans
+        where baoji_ms.trans.out_com_id=#{value}
+        GROUP BY month_time;
+    </select>
+
 </mapper>

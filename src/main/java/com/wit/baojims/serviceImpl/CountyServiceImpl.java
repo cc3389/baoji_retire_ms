@@ -44,13 +44,11 @@ public class CountyServiceImpl extends ServiceImpl<CountyMapper, County> impleme
     @Override
     public List<County> selectAllCounty(List<Manage> manages) {
         QueryWrapper<County> wrapper = new QueryWrapper<>();
-        List<Integer> countIdList = new ArrayList<>();
-        for (Manage manage:manages) countIdList.add(manage.getCountyId());
-        wrapper.ne("county_id", countIdList);
-//        for (Manage manage : manages) {
-//            Integer countyId = manage.getCountyId();
-//            wrapper.or().ne("county_id",countyId);
-//        }
+
+        for (Manage manage : manages) {
+            Integer countyId = manage.getCountyId();
+            wrapper.or().ne("county_id",countyId);
+        }
         return countyMapper.selectList(wrapper);
     }
 }

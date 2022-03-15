@@ -5,6 +5,8 @@ import com.wit.baojims.entity.Admin;
 import com.wit.baojims.entity.Community;
 import com.wit.baojims.entity.Visit;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wit.baojims.vo.TransGroupVo;
+import com.wit.baojims.vo.VisitGroupVo;
 
 import java.util.List;
 
@@ -18,5 +20,5 @@ import java.util.List;
  */
 public interface VisitService extends IService<Visit> {
     IPage<Visit> selectVisitPage(Integer page, Integer size, Admin admin);
-
+//    public List<VisitGroupVo> groupByYear(Integer comId);
 }

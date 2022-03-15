@@ -1,6 +1,7 @@
 package com.wit.baojims.controller;
 
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.json.JSONObject;
@@ -10,11 +11,13 @@ import com.wit.baojims.entity.*;
 import com.wit.baojims.exception.BaojiException;
 import com.wit.baojims.form.ActivityForm;
 import com.wit.baojims.form.VisitForm;
+import com.wit.baojims.mapper.VisitMapper;
 import com.wit.baojims.result.ResponseEnum;
 import com.wit.baojims.service.AdminService;
 import com.wit.baojims.service.CommunityService;
 import com.wit.baojims.service.ManageService;
 import com.wit.baojims.service.VisitService;
+import com.wit.baojims.vo.VisitGroupVo;
 import com.wit.baojims.vo.VisitVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -43,12 +46,15 @@ public class VisitController {
     @Autowired
     private VisitService visitService;
     @Autowired
+    private VisitMapper visitMapper;
+    @Autowired
     private CommunityService communityService;
     @Autowired
     private ManageService manageService;
     @Autowired
     private AdminService adminService;
 
+    @SaCheckRole("mid")
     @GetMapping("/page")
     public SaResult page(@RequestParam("page") Integer pageCurrent,@RequestParam("size") Integer sizeCurrent){
         if(pageCurrent == null) pageCurrent = 1;
@@ -88,6 +94,7 @@ public class VisitController {
         return SaResult.ok().setData(data);
     }
 
+    @SaCheckRole("mid")
     @PostMapping("/add")
     public SaResult add(@Valid @RequestBody VisitForm visitForm, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
@@ -102,15 +109,19 @@ public class VisitController {
             return SaResult.code(300).setMsg("查无社区");
         }
         else {
-            Visit newVisit = new Visit();
-            newVisit.setVisDate(visitForm.getDate().atStartOfDay());
-            newVisit.setVisDesc(visitForm.getDesc());
-            newVisit.setComId(one.getComId());
-            visitService.save(newVisit);
+            Visit visit = new Visit();
+            visit.setVisDate(visitForm.getDate().atStartOfDay());
+            visit.setVisDesc(visitForm.getDesc());
+            visit.setComId(one.getComId());
+            visitMapper.insert(visit);
+
+            one.setVisCount(one.getVisCount()+1);
+            communityService.updateById(one);
             return SaResult.ok();
         }
     }
 
+    @SaCheckRole("mid")
     @GetMapping("/one")
     public SaResult one(@RequestParam Integer visId){
         if (visId == null) return SaResult.code(300).setMsg("走访记录id为空");
@@ -124,6 +135,30 @@ public class VisitController {
         }
         HashMap data = new HashMap();
         data.put("desc", one.getVisDesc());
+        return SaResult.ok().setData(data);
+    }
+
+    @GetMapping("/groupByCom")
+    public SaResult groupByCom (){
+        Object loginId = StpUtil.getLoginId();
+        QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
+        queryWrapperManage.eq("admin_id", loginId);
+        List<Manage> manageList = manageService.list(queryWrapperManage);
+
+        List<VisitGroupVo> visitGroupVoList = new ArrayList<>();
+        QueryWrapper<Community> queryWrapperCommunity = new QueryWrapper<>();
+        for (Manage manage : manageList){
+            VisitGroupVo visitGroupVo = new VisitGroupVo();
+            queryWrapperCommunity.eq("com_id", manage.getComId());
+            Community community = communityService.getOne(queryWrapperCommunity);
+            visitGroupVo.setComName(community.getName());
+            visitGroupVo.setTotal(community.getVisCount());
+            visitGroupVoList.add(visitGroupVo);
+            queryWrapperCommunity.clear();
+        }
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("list", visitGroupVoList);
         return SaResult.ok().setData(data);
     }
 }

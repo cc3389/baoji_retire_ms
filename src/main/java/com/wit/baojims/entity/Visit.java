@@ -1,5 +1,6 @@
 package com.wit.baojims.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -28,7 +29,7 @@ public class Visit implements Serializable {
     /**
      * 区县管理员走访id
      */
-      @TableId("vis_id")
+      @TableId(value = "vis_id", type = IdType.AUTO)
     private Integer visId;
 
     /**

@@ -1,6 +1,7 @@
 package com.wit.baojims.controller;
 
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -13,6 +14,7 @@ import com.wit.baojims.form.InstituteForm;
 import com.wit.baojims.service.CommunityService;
 import com.wit.baojims.service.InstituteService;
 import com.wit.baojims.service.ManageService;
+import com.wit.baojims.vo.InstituteSuggestionVo;
 import com.wit.baojims.vo.insListVo;
 import com.wit.baojims.vo.instituteVo;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +55,7 @@ public class InstituteController {
      * @Param [id, page, size]
      * @return cn.dev33.satoken.util.SaResult
      **/
+    @SaCheckRole("mid")
     @GetMapping("/list")
     public SaResult institutePage(@RequestParam("page") Integer Page, @RequestParam("size") Integer Size){
 
@@ -113,8 +116,17 @@ public class InstituteController {
         return SaResult.data(map);
     }
 
+    @SaCheckRole("mid")
     @PostMapping("/add")
     public SaResult add(@RequestBody InstituteForm instituteForm, BindingResult bindingResult){
+
+        QueryWrapper<Institute> queryWrapperInsititute = new QueryWrapper<>();
+        queryWrapperInsititute.eq("name", instituteForm.getName());
+        Institute one = instituteService.getOne(queryWrapperInsititute);
+        if(one != null){
+            return SaResult.code(300).setMsg("该机构已经存在");
+        }
+
         if (bindingResult.hasErrors()){
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
             HashMap<String, String> map = new HashMap<>();
@@ -138,6 +150,7 @@ public class InstituteController {
         return SaResult.ok();
     }
 
+    @SaCheckRole("mid")
     @PostMapping("/delete")
     public SaResult delete(@RequestBody DeleteInsIdForm deleteInsIdForm){
         log.info("delete_id",deleteInsIdForm.getId());
@@ -150,6 +163,7 @@ public class InstituteController {
 
     }
 
+    @SaCheckRole("mid")
     @PostMapping("/update")
     public SaResult update(@RequestBody InstituteForm instituteForm){
         Community community = communityService.selectComByName(instituteForm.getComName());
@@ -165,6 +179,29 @@ public class InstituteController {
         institute.setComId(community.getComId());
         instituteService.updateIns(institute);
         return SaResult.ok();
+    }
+
+    @GetMapping("/suggestion")
+    public SaResult suggestion(){
+        Object loginId = StpUtil.getLoginId();
+        QueryWrapper<Manage> queryWrapperManage = new QueryWrapper<>();
+        queryWrapperManage.eq("admin_id", loginId);
+        Manage manage = manageService.getOne(queryWrapperManage);
+
+        QueryWrapper<Institute> queryWrapperInstitute = new QueryWrapper<>();
+        queryWrapperInstitute.eq("com_id", manage.getComId());
+        List<Institute> instituteList = instituteService.list(queryWrapperInstitute);
+
+        List<InstituteSuggestionVo> instituteSuggestionVoList = new ArrayList<>();
+        for (Institute institute : instituteList){
+            InstituteSuggestionVo instituteSuggestionVo = new InstituteSuggestionVo();
+            instituteSuggestionVo.setValue(institute.getName());
+            instituteSuggestionVoList.add(instituteSuggestionVo);
+        }
+        HashMap data = new HashMap();
+        data.put("list", instituteSuggestionVoList);
+
+        return SaResult.ok().setData(data);
     }
 }
 

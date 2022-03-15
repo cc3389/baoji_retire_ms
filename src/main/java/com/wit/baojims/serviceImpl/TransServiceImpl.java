@@ -8,8 +8,11 @@ import com.wit.baojims.entity.Trans;
 import com.wit.baojims.mapper.TransMapper;
 import com.wit.baojims.service.TransService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wit.baojims.vo.TransGroupVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @Author Shawn Yue
@@ -31,6 +34,16 @@ public class TransServiceImpl extends ServiceImpl<TransMapper, Trans> implements
         QueryWrapper<Trans> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("in_com_id", comId).or().eq("out_com_id", comId);
         return transMapper.selectPage(iPage, queryWrapper);
+    }
+
+    @Override
+    public List<TransGroupVo> groupByInMonth(Integer comId) {
+        return transMapper.groupByInMonth(comId);
+    }
+
+    @Override
+    public List<TransGroupVo> groupByOutMonth(Integer comId) {
+        return transMapper.groupByOutMonth(comId);
     }
 
 //    @Override

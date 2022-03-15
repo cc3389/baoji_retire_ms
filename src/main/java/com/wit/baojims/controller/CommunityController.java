@@ -1,6 +1,7 @@
 package com.wit.baojims.controller;
 
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.json.JSONObject;
@@ -42,6 +43,7 @@ public class CommunityController {
     @Autowired
     private AdminService adminService;
 
+    @SaCheckRole("mid")
     @PostMapping("/add")
     public SaResult add(@RequestBody JSONObject data){
         if(data == null) {
@@ -78,11 +80,12 @@ public class CommunityController {
             manage.setAdminId(admin.getAdminId());
             manageService.save(manage);
         } else {
-            return SaResult.code(300).setMsg("社区名称重复");
+            return SaResult.code(300).setMsg("社区已经存在");
         }
         return SaResult.ok();
     }
 
+    @SaCheckRole("mid")
     @GetMapping("/page")
     public SaResult page(@RequestParam("page") Integer pageCurrent,@RequestParam("size") Integer sizeCurrent){
         if(pageCurrent == null) {
@@ -114,6 +117,7 @@ public class CommunityController {
         return SaResult.ok().setData(data);
     }
 
+    @SaCheckRole("mid")
     @PostMapping("/del")
     public SaResult del(@RequestBody JSONObject id){
         if(id.getInt("id") == null) {
@@ -133,6 +137,7 @@ public class CommunityController {
         return SaResult.ok();
     }
 
+    @SaCheckRole("mid")
     @PostMapping("/update")
     public SaResult update(@RequestBody  JSONObject data){
         QueryWrapper<Community> queryWrapper = new QueryWrapper<>();

@@ -9,8 +9,8 @@ spring:
     url: jdbc:mysql://sh-cynosdbmysql-grp-gtd1o0yg.sql.tencentcdb.com:21877/baoji_ms
   servlet:
     multipart:
-      max-request-size: 3MB
-      max-file-size: 1MB
+      max-request-size: 2MB
+      max-file-size: 2MB
   devtools:
     restart:
       enabled: true  #设置开启热部署
